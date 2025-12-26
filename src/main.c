@@ -3,12 +3,14 @@
 #include "../include/book.h"
 #include "../include/io.h"     
 #include "../include/avl.h"    
-#include "../include/gui.h"    
+#include "../include/gui.h"
+#include "../include/stack.h" // Stack başlık dosyası eklendi
 
 int main() {
     // 1. ADIM: Verileri Yükleme
     int bookCount = 0;
     Book* bookList = (Book*)malloc(sizeof(Book) * 100); 
+    StackNode* searchHistory = NULL; // Arama geçmişi (Stack) başlatıldı
 
     if (bookList == NULL) {
         printf("Bellek ayirma hatasi!\n");
@@ -43,7 +45,6 @@ int main() {
 
         switch (choice) {
             case 1: {
-                // ARAMA MENÜSÜ AKTİF
                 int arananID;
                 printf("\nAramak istediginiz Kitap ID'sini girin: ");
                 scanf("%d", &arananID);
@@ -60,6 +61,9 @@ int main() {
                     printf("Yazar:  %s\n", sonuc->data.author);
                     printf("Puan:   %.1f\n", sonuc->data.score);
                     printf("-----------------------------------\n");
+                    
+                    // Başarılı aramayı Stack'e (geçmişe) ekle
+                    push(&searchHistory, sonuc->data.title);
                 } else {
                     printf("\n[HATA] ID %d olan bir kitap bulunamadi.\n", arananID);
                 }
@@ -69,7 +73,8 @@ int main() {
                 printf("\n[BILGI] Siralama algoritmasi (QuickSort/MergeSort) henüz entegre edilmedi.\n");
                 break;
             case 3:
-                printf("\n[BILGI] Stack yapisi (Gecmis) henüz entegre edilmedi.\n");
+                // Stack yapısını (Gecmis) ekranda göster
+                displayStack(searchHistory);
                 break;
             default:
                 printf("\n[!] Gecersiz secim, tekrar deneyin.\n");
@@ -78,6 +83,6 @@ int main() {
 
     // 4. ADIM: Bellek Temizliği
     free(bookList);
-    // free_tree(root); // İleride eklenecek
+    freeStack(searchHistory); // Stack için ayrılan belleği temizle
     return 0;
 }

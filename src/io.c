@@ -3,24 +3,41 @@
 #include <string.h>
 #include "../include/io.h"
 
-// JSON okuma fonksiyonunun gövdesi
 void load_books_from_json(const char* filename, Book* bookList, int* bookCount) {
-    // Gerçek bir JSON parse işlemi için cJSON gibi kütüphaneler gerekir.
-    // Şimdilik test için manuel 2 kitap ekleyelim ki AVL'yi test edebilesin.
-    
-    printf("[IO] %s dosyasi okunuyor (Simülasyon)...\n", filename);
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        printf("[HATA] %s dosyasi acilamadi!\n", filename);
+        return;
+    }
 
-    // 1. Kitap
-    bookList[0].id = 1;
-    strcpy(bookList[0].title, "Nutuk");
-    strcpy(bookList[0].author, "Mustafa Kemal Ataturk");
-    bookList[0].score = 10.0;
+    char line[256];
+    int count = 0;
 
-    // 2. Kitap
-    bookList[1].id = 2;
-    strcpy(bookList[1].title, "Simyaci");
-    strcpy(bookList[1].author, "Paulo Coelho");
-    bookList[1].score = 8.5;
+    // Basit bir JSON temizleyici/okuyucu (Gerçek kütüphane yerine manuel okuma)
+    while (fgets(line, sizeof(line), file)) {
+        if (strstr(line, "\"id\":")) {
+            sscanf(strstr(line, ":"), ": %d,", &bookList[count].id);
+        } else if (strstr(line, "\"title\":")) {
+            char* start = strchr(line, '\"') + 9; // "title": " kısmını atla
+            char* end = strrchr(line, '\"');
+            if (start && end) {
+                *end = '\0';
+                strncpy(bookList[count].title, start, MAX_STR);
+            }
+        } else if (strstr(line, "\"author\":")) {
+            char* start = strchr(line, '\"') + 10;
+            char* end = strrchr(line, '\"');
+            if (start && end) {
+                *end = '\0';
+                strncpy(bookList[count].author, start, MAX_STR);
+            }
+        } else if (strstr(line, "\"score\":")) {
+            sscanf(strstr(line, ":"), ": %lf", &bookList[count].score);
+            count++; // Bir kitap tamamlandı
+        }
+    }
 
-    *bookCount = 2; // Toplam 2 kitap yüklendiğini bildiriyoruz
+    *bookCount = count;
+    fclose(file);
+    printf("[IO] %d adet kitap JSON'dan basariyla okundu.\n", count);
 }
