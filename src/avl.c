@@ -89,3 +89,16 @@ AVLNode* insert_avl(AVLNode* node, Book data) {
 
     return node;
 }
+// ID'ye göre ağaçta kitap arar
+AVLNode* search_avl(AVLNode* root, int id) {
+    // Kök boşsa veya aranan ID kökteyse
+    if (root == NULL || root->data.id == id)
+        return root;
+
+    // Aranan ID kökten büyükse sağa git
+    if (root->data.id < id)
+        return search_avl(root->right, id);
+
+    // Aranan ID kökten küçükse sola git
+    return search_avl(root->left, id);
+}

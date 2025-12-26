@@ -1,47 +1,83 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/book.h"   // ../ bir üst klasöre çıkar, sonra include'a girer
+#include "../include/book.h"
 #include "../include/io.h"     
 #include "../include/avl.h"    
 #include "../include/gui.h"    
 
 int main() {
-    // 1. ADIM: Başlatma (Senin Görevin)
-    // JSON dosyasından verileri oku ve bir diziye (array) aktar
+    // 1. ADIM: Verileri Yükleme
     int bookCount = 0;
-    Book* bookList = load_books_from_json("data/books.json", &bookCount);
+    Book* bookList = (Book*)malloc(sizeof(Book) * 100); 
 
-    // 2. ADIM: Veri Yapılarını Kurma (Arkadaşının Görevin)
-    // Okunan kitapları hızlı arama için AVL ve Trie ağaçlarına yerleştir
+    if (bookList == NULL) {
+        printf("Bellek ayirma hatasi!\n");
+        return 1;
+    }
+
+    load_books_from_json("data/books.json", bookList, &bookCount);
+
+    // 2. ADIM: AVL Ağacını Oluşturma
     AVLNode* root = NULL;
     for(int i = 0; i < bookCount; i++) {
         root = insert_avl(root, bookList[i]);
-        // insert_trie(trieRoot, bookList[i].title);
     }
+    
+    printf("\n[SISTEM] Veritabani hazir. %d kitap yuklendi.\n", bookCount);
 
     int choice;
     while (1) {
-        // 3. ADIM: Arayüzü Göster (Senin Görevin)
-        show_menu();
-        scanf("%d", &choice);
+        printf("\n=== KUTUPHANE YONETIM SISTEMI ===\n");
+        printf("1. Kitap Ara (ID ile)\n");
+        printf("2. Kitaplari Sirala (Puan/Yil)\n");
+        printf("3. Arama Gecmisi (Stack)\n");
+        printf("0. Cikis\n");
+        printf("Seciminiz: ");
+        
+        if (scanf("%d", &choice) != 1) break;
 
-        if (choice == 0) break; // Çıkış
+        if (choice == 0) {
+            printf("Programdan cikiliyor...\n");
+            break;
+        }
 
         switch (choice) {
-            case 1: // Arama (Arkadaşının Algoritması Çalışır)
-                // search_book_ui(); -> Bu fonksiyon içinden trie_search veya avl_search çağrılır
+            case 1: {
+                // ARAMA MENÜSÜ AKTİF
+                int arananID;
+                printf("\nAramak istediginiz Kitap ID'sini girin: ");
+                scanf("%d", &arananID);
+
+                printf("[SISTEM] AVL agacinda sorgulaniyor...\n");
+                AVLNode* sonuc = search_avl(root, arananID);
+
+                if (sonuc != NULL) {
+                    printf("\n-----------------------------------\n");
+                    printf("   KITAP BULUNDU!\n");
+                    printf("-----------------------------------\n");
+                    printf("ID:     %d\n", sonuc->data.id);
+                    printf("Ad:     %s\n", sonuc->data.title);
+                    printf("Yazar:  %s\n", sonuc->data.author);
+                    printf("Puan:   %.1f\n", sonuc->data.score);
+                    printf("-----------------------------------\n");
+                } else {
+                    printf("\n[HATA] ID %d olan bir kitap bulunamadi.\n", arananID);
+                }
                 break;
-            case 2: // Sıralama (Arkadaşının Algoritması Çalışır)
-                // sort_books_ui(bookList, bookCount); -> QuickSort veya MergeSort çağrılır
+            }
+            case 2:
+                printf("\n[BILGI] Siralama algoritmasi (QuickSort/MergeSort) henüz entegre edilmedi.\n");
                 break;
-            case 3: // Geçmişi Gör (Senin Stack yapın)
-                // show_history();
+            case 3:
+                printf("\n[BILGI] Stack yapisi (Gecmis) henüz entegre edilmedi.\n");
                 break;
+            default:
+                printf("\n[!] Gecersiz secim, tekrar deneyin.\n");
         }
     }
 
-    // 4. ADIM: Bellek Temizliği (Ortak)
+    // 4. ADIM: Bellek Temizliği
     free(bookList);
-    // free_tree(root);
+    // free_tree(root); // İleride eklenecek
     return 0;
 }
