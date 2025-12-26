@@ -1,47 +1,69 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/book.h"   // ../ bir üst klasöre çıkar, sonra include'a girer
+#include "../include/book.h"
 #include "../include/io.h"     
 #include "../include/avl.h"    
 #include "../include/gui.h"    
 
 int main() {
     // 1. ADIM: Başlatma (Senin Görevin)
-    // JSON dosyasından verileri oku ve bir diziye (array) aktar
+    // Kitaplar için bellekte yer açıyoruz (Örn: 100 kitaplık kapasite)
     int bookCount = 0;
-    Book* bookList = load_books_from_json("data/books.json", &bookCount);
+    Book* bookList = (Book*)malloc(sizeof(Book) * 100); 
 
-    // 2. ADIM: Veri Yapılarını Kurma (Arkadaşının Görevin)
-    // Okunan kitapları hızlı arama için AVL ve Trie ağaçlarına yerleştir
+    if (bookList == NULL) {
+        printf("Bellek ayirma hatasi!\n");
+        return 1;
+    }
+
+    // JSON dosyasından verileri oku ve bookList dizisine doldur
+    load_books_from_json("data/books.json", bookList, &bookCount);
+
+    // --- TEST KODU (İstediğin test kısmı burası) ---
+    if (bookCount > 0) {
+        printf("\n--- TEST: Veriler Basariyla Yuklendi ---\n");
+        printf("Ilk Kitap: %s | Yazar: %s | Puan: %.1f\n", 
+                bookList[0].title, bookList[0].author, bookList[0].score);
+        printf("Toplam Kitap Sayisi: %d\n", bookCount);
+        printf("---------------------------------------\n\n");
+    } else {
+        printf("Uyari: Hic kitap yuklenemedi. JSON dosyasini kontrol et!\n");
+    }
+    // --- TEST KODU SONU ---
+
+    // 2. ADIM: Veri Yapılarını Kurma (Arkadaşının Görevi)
     AVLNode* root = NULL;
     for(int i = 0; i < bookCount; i++) {
-        root = insert_avl(root, bookList[i]);
-        // insert_trie(trieRoot, bookList[i].title);
+        // Arkadaşın insert_avl fonksiyonunu yazdığında burası aktif olacak
+        // root = insert_avl(root, bookList[i]);
     }
 
     int choice;
     while (1) {
         // 3. ADIM: Arayüzü Göster (Senin Görevin)
-        show_menu();
-        scanf("%d", &choice);
+        // show_menu(); // gui.c içinde tanımlayacağın fonksiyon
+        printf("1. Arama\n2. Siralama\n3. Gecmis\n0. Cikis\nSecim: ");
+        if (scanf("%d", &choice) != 1) break;
 
-        if (choice == 0) break; // Çıkış
+        if (choice == 0) break;
 
         switch (choice) {
-            case 1: // Arama (Arkadaşının Algoritması Çalışır)
-                // search_book_ui(); -> Bu fonksiyon içinden trie_search veya avl_search çağrılır
+            case 1:
+                printf("Arama yakinda eklenecek (Trie/AVL)...\n");
                 break;
-            case 2: // Sıralama (Arkadaşının Algoritması Çalışır)
-                // sort_books_ui(bookList, bookCount); -> QuickSort veya MergeSort çağrılır
+            case 2:
+                printf("Siralama yakinda eklenecek (Quick/Merge)...\n");
                 break;
-            case 3: // Geçmişi Gör (Senin Stack yapın)
-                // show_history();
+            case 3:
+                printf("Gecmis yakinda eklenecek (Stack)...\n");
                 break;
+            default:
+                printf("Gecersiz secim!\n");
         }
     }
 
     // 4. ADIM: Bellek Temizliği (Ortak)
     free(bookList);
-    // free_tree(root);
+    // free_tree(root); // Arkadaşın ağaç temizleme fonksiyonunu yazdığında açılacak
     return 0;
 }
