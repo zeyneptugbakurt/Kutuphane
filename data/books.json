@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "title": "Nutuk",
+    "author": "Mustafa Kemal Atatürk",
+    "genre": "Tarih",
+    "year": 1927,
+    "score": 5.0
+  },
+  {
+    "id": 2,
+    "title": "Sefiller",
+    "author": "Victor Hugo",
+    "genre": "Klasik",
+    "year": 1862,
+    "score": 4.8
+  },
+  {
+    "id": 3,
+    "title": "1984",
+    "author": "George Orwell",
+    "genre": "Distopya",
+    "year": 1949,
+    "score": 4.7
+  },
+  {
+    "id": 4,
+    "title": "Suç ve Ceza",
+    "author": "Fyodor Dostoyevski",
+    "genre": "Klasik",
+    "year": 1866,
+    "score": 4.9
+  },
+  {
+    "id": 5,
+    "title": "Saatleri Ayarlama Enstitüsü",
+    "author": "Ahmet Hamdi Tanpınar",
+    "genre": "Edebiyat",
+    "year": 1961,
+    "score": 4.6
+  },
+  {
+    "id": 6,
+    "title": "Simyacı",
+    "author": "Paulo Coelho",
+    "genre": "Felsefi Roman",
+    "year": 1988,
+    "score": 4.2
+  },
+  {
+    "id": 7,
+    "title": "Küçük Prens",
+    "author": "Antoine de Saint-Exupéry",
+    "genre": "Çocuk Edebiyatı",
+    "year": 1943,
+    "score": 4.9
+  },
+  {
+    "id": 8,
+    "title": "Kürk Mantolu Madonna",
+    "author": "Sabahattin Ali",
+    "genre": "Roman",
+    "year": 1943,
+    "score": 4.8
+  },
+  {
+    "id": 9,
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "genre": "Bilim Kurgu",
+    "year": 1965,
+    "score": 4.5
+  },
+  {
+    "id": 10,
+    "title": "Yüzüklerin Efendisi",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantastik",
+    "year": 1954,
+    "score": 5.0
+  }
+]
