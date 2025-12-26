@@ -7,6 +7,7 @@
 #include "../include/gui.h"
 #include "../include/stack.h"
 #include "../include/trie.h"
+#include "../include/sort.h" // Sıralama başlık dosyası eklendi
 
 int main() {
     int bookCount = 0;
@@ -33,9 +34,9 @@ int main() {
     while (1) {
         printf("\n=== KUTUPHANE YONETIM SISTEMI ===\n");
         printf("1. Kitap Ara (ID ile - AVL)\n");
-        printf("2. Kitaplari Sirala (Puan/Yil)\n");
+        printf("2. Kitaplari Sirala (Puan/Alfabetik)\n");
         printf("3. Arama Gecmisi (Stack)\n");
-        printf("4. Kitap Ara (Isim/On Ek ile - Trie)\n"); 
+        printf("4. Kitap Ara (Isim/Anahtar Kelime - Trie)\n"); 
         printf("0. Cikis\n");
         printf("Seciminiz: ");
         
@@ -47,7 +48,7 @@ int main() {
         if (choice == 0) break;
 
         switch (choice) {
-            case 1: { // ID ARAMA
+            case 1: { // ID ARAMA (AVL)
                 int arananID;
                 printf("\nID girin: ");
                 scanf("%d", &arananID);
@@ -55,29 +56,48 @@ int main() {
                 if (sonuc) {
                     printf("\n-----------------------------------\n");
                     printf("   KITAP BULUNDU!\n");
-                    printf("ID:     %d\n", sonuc->data.id);
-                    printf("Ad:     %s\n", sonuc->data.title);
+                    printf("ID:     %d | Ad: %s\n", sonuc->data.id, sonuc->data.title);
                     printf("-----------------------------------\n");
                     push(&searchHistory, sonuc->data.title);
                 } else printf("\n[HATA] ID bulunamadi.\n");
                 break;
             }
-            case 2: // SIRALAMA
-                printf("\n[BILGI] Siralama (Quick/Merge Sort) yakinda eklenecek.\n");
+            case 2: { // SIRALAMA MENÜSÜ
+                int sortChoice;
+                printf("\n--- SIRALAMA YONTEMI SECIN ---\n");
+                printf("1. Artan Puan (QuickSort)\n");
+                printf("2. Azalan Puan (HeapSort)\n");
+                printf("3. Alfabetik (MergeSort)\n");
+                printf("Seciminiz: ");
+                scanf("%d", &sortChoice);
+
+                if (sortChoice == 1) {
+                    quickSort(bookList, 0, bookCount - 1);
+                    printf("\n[OK] QuickSort ile puana gore (Artan) siralandi.\n");
+                } else if (sortChoice == 2) {
+                    heapSort(bookList, bookCount);
+                    printf("\n[OK] HeapSort ile puana gore (Azalan) siralandi.\n");
+                } else if (sortChoice == 3) {
+                    mergeSort(bookList, 0, bookCount - 1);
+                    printf("\n[OK] MergeSort ile alfabetik siralandi.\n");
+                }
+
+                // Sıralanmış Listeyi Yazdır
+                printf("\n%-5s | %-25s | %-5s\n", "ID", "Kitap Adi", "Puan");
+                printf("--------------------------------------------\n");
+                for (int i = 0; i < bookCount; i++) {
+                    printf("%-5d | %-25s | %.1f\n", bookList[i].id, bookList[i].title, bookList[i].score);
+                }
                 break;
-            case 3: // GECMİS
+            }
+            case 3:
                 displayStack(searchHistory);
                 break;
-            case 4: { // İSİM ÖNEK ARAMA (TRIE)
-                char arananOnEk[MAX_STR];
-                printf("\nKİtap Ara..");
-                scanf(" %s", arananOnEk);
-
-                // Bu fonksiyon girilen harflerle baslayan tüm kitapları listeleyecektir
-                search_prefix_trie(trieRoot, arananOnEk, bookList, bookCount);
-                
-                // Aramayı genel geçmişe (Stack) eklemek istersen, 
-                // Öneki eklemek yerine tam sonuçları göstermek daha iyidir.
+            case 4: { // AKILLI ARAMA (TRIE)
+                char arananKelime[MAX_STR];
+                printf("\nKitap Ara.. ");
+                scanf(" %s", arananKelime);
+                search_prefix_trie(trieRoot, arananKelime, bookList, bookCount);
                 break;
             }
             default:
@@ -87,6 +107,5 @@ int main() {
 
     free(bookList);
     freeStack(searchHistory);
-    // free_trie(trieRoot); // Gerekirse eklenebilir
     return 0;
 }

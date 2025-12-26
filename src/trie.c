@@ -20,30 +20,40 @@ int charToIndex(char c) {
     return tolower((unsigned char)c) - 'a';
 }
 
-// Trie ağacına kitap ismini ekler
+// --- GÜNCELLENDİ: Anahtar Kelime Mantığı ---
+// Kitap ismini kelimelere böler ve her kelimeyi Trie'ye ekler
 void insert_trie(TrieNode* root, const char* title, int book_id) {
-    TrieNode* curr = root;
-    for (int i = 0; title[i] != '\0'; i++) {
-        // Sadece harfleri işleme alıyoruz
-        if (!isalpha((unsigned char)title[i])) continue; 
-        
-        int index = charToIndex(title[i]);
-        if (index < 0 || index >= ALPHABET_SIZE) continue;
+    char tempTitle[MAX_STR];
+    strncpy(tempTitle, title, MAX_STR);
+    tempTitle[MAX_STR - 1] = '\0';
 
-        if (curr->children[index] == NULL) {
-            curr->children[index] = createTrieNode();
+    // Kitap ismini boşluklara göre parçala (Örn: "Suc ve Ceza")
+    char* word = strtok(tempTitle, " ");
+    while (word != NULL) {
+        TrieNode* curr = root;
+        for (int i = 0; word[i] != '\0'; i++) {
+            if (!isalpha((unsigned char)word[i])) continue;
+            
+            int index = charToIndex(word[i]);
+            if (index < 0 || index >= ALPHABET_SIZE) continue;
+
+            if (curr->children[index] == NULL) {
+                curr->children[index] = createTrieNode();
+            }
+            curr = curr->children[index];
         }
-        curr = curr->children[index];
+        // Kelimenin bittiği yere kitabın ID'sini işaretle
+        curr->isEndOfWord = 1;
+        curr->book_id = book_id;
+        
+        word = strtok(NULL, " "); // Bir sonraki kelimeye geç ("ve", sonra "Ceza")
     }
-    curr->isEndOfWord = 1;
-    curr->book_id = book_id;
 }
 
-// YARDIMCI FONKSİYON: Bir düğümden aşağı doğru tüm kitapları bulup yazdırır (Recursive)
+// YARDIMCI FONKSİYON: Recursive olarak tüm ihtimalleri dökür
 void display_suggestions(TrieNode* curr, char* currentPrefix, int level, Book* bookList, int bookCount) {
     if (curr->isEndOfWord) {
         currentPrefix[level] = '\0';
-        // Kitap listesinde ID'yi bulup detayları yazdırıyoruz
         for(int i = 0; i < bookCount; i++) {
             if(bookList[i].id == curr->book_id) {
                 printf("  [>] %s (ID: %d)\n", bookList[i].title, bookList[i].id);
@@ -59,29 +69,27 @@ void display_suggestions(TrieNode* curr, char* currentPrefix, int level, Book* b
     }
 }
 
-// Önek (Prefix) ile arama yapan ana fonksiyon
+// Önek veya Anahtar Kelime ile arama yapan fonksiyon
 void search_prefix_trie(TrieNode* root, const char* prefix, Book* bookList, int bookCount) {
     TrieNode* curr = root;
     
-    // Önce aranan önekin sonuna kadar ağaçta git
     for (int i = 0; prefix[i] != '\0'; i++) {
         if (!isalpha((unsigned char)prefix[i])) continue;
         int index = charToIndex(prefix[i]);
         if (index < 0 || index >= ALPHABET_SIZE || curr->children[index] == NULL) {
-            printf("\n[BILGI] '%s' ile baslayan bir kitap bulunamadi.\n", prefix);
+            printf("\n[BILGI] '%s' ile eslesen bir anahtar kelime bulunamadi.\n", prefix);
             return;
         }
         curr = curr->children[index];
     }
 
-    // Önekin bittiği yerden itibaren tüm alt dalları (kelimeleri) yazdır
-    printf("\n--- '%s' ile baslayan sonuclar ---\n", prefix);
+    printf("\n--- '%s' iceren/baslayan sonuclar ---\n", prefix);
     char buffer[MAX_STR];
     strcpy(buffer, prefix);
     display_suggestions(curr, buffer, strlen(prefix), bookList, bookCount);
 }
 
-// Tam isim araması (Daha önce yazdığın fonksiyon)
+// Tam isim araması (Geriye dönük uyumluluk için duruyor)
 int search_trie(TrieNode* root, const char* title) {
     TrieNode* curr = root;
     for (int i = 0; title[i] != '\0'; i++) {
