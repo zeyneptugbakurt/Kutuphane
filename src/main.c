@@ -1,16 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../include/book.h"
 #include "../include/io.h"     
 #include "../include/avl.h"    
 #include "../include/gui.h"
-#include "../include/stack.h" // Stack başlık dosyası eklendi
+#include "../include/stack.h"
+#include "../include/trie.h"
 
 int main() {
-    // 1. ADIM: Verileri Yükleme
     int bookCount = 0;
     Book* bookList = (Book*)malloc(sizeof(Book) * 100); 
-    StackNode* searchHistory = NULL; // Arama geçmişi (Stack) başlatıldı
+    StackNode* searchHistory = NULL; 
+    AVLNode* root = NULL;
+    TrieNode* trieRoot = createTrieNode(); 
 
     if (bookList == NULL) {
         printf("Bellek ayirma hatasi!\n");
@@ -19,10 +22,9 @@ int main() {
 
     load_books_from_json("data/books.json", bookList, &bookCount);
 
-    // 2. ADIM: AVL Ağacını Oluşturma
-    AVLNode* root = NULL;
     for(int i = 0; i < bookCount; i++) {
         root = insert_avl(root, bookList[i]);
+        insert_trie(trieRoot, bookList[i].title, bookList[i].id);
     }
     
     printf("\n[SISTEM] Veritabani hazir. %d kitap yuklendi.\n", bookCount);
@@ -30,59 +32,61 @@ int main() {
     int choice;
     while (1) {
         printf("\n=== KUTUPHANE YONETIM SISTEMI ===\n");
-        printf("1. Kitap Ara (ID ile)\n");
+        printf("1. Kitap Ara (ID ile - AVL)\n");
         printf("2. Kitaplari Sirala (Puan/Yil)\n");
         printf("3. Arama Gecmisi (Stack)\n");
+        printf("4. Kitap Ara (Isim/On Ek ile - Trie)\n"); 
         printf("0. Cikis\n");
         printf("Seciminiz: ");
         
-        if (scanf("%d", &choice) != 1) break;
-
-        if (choice == 0) {
-            printf("Programdan cikiliyor...\n");
-            break;
+        if (scanf("%d", &choice) != 1) {
+            while(getchar() != '\n'); 
+            continue;
         }
 
+        if (choice == 0) break;
+
         switch (choice) {
-            case 1: {
+            case 1: { // ID ARAMA
                 int arananID;
-                printf("\nAramak istediginiz Kitap ID'sini girin: ");
+                printf("\nID girin: ");
                 scanf("%d", &arananID);
-
-                printf("[SISTEM] AVL agacinda sorgulaniyor...\n");
                 AVLNode* sonuc = search_avl(root, arananID);
-
-                if (sonuc != NULL) {
+                if (sonuc) {
                     printf("\n-----------------------------------\n");
                     printf("   KITAP BULUNDU!\n");
-                    printf("-----------------------------------\n");
                     printf("ID:     %d\n", sonuc->data.id);
                     printf("Ad:     %s\n", sonuc->data.title);
-                    printf("Yazar:  %s\n", sonuc->data.author);
-                    printf("Puan:   %.1f\n", sonuc->data.score);
                     printf("-----------------------------------\n");
-                    
-                    // Başarılı aramayı Stack'e (geçmişe) ekle
                     push(&searchHistory, sonuc->data.title);
-                } else {
-                    printf("\n[HATA] ID %d olan bir kitap bulunamadi.\n", arananID);
-                }
+                } else printf("\n[HATA] ID bulunamadi.\n");
                 break;
             }
-            case 2:
-                printf("\n[BILGI] Siralama algoritmasi (QuickSort/MergeSort) henüz entegre edilmedi.\n");
+            case 2: // SIRALAMA
+                printf("\n[BILGI] Siralama (Quick/Merge Sort) yakinda eklenecek.\n");
                 break;
-            case 3:
-                // Stack yapısını (Gecmis) ekranda göster
+            case 3: // GECMİS
                 displayStack(searchHistory);
                 break;
+            case 4: { // İSİM ÖNEK ARAMA (TRIE)
+                char arananOnEk[MAX_STR];
+                printf("\nKİtap Ara..");
+                scanf(" %s", arananOnEk);
+
+                // Bu fonksiyon girilen harflerle baslayan tüm kitapları listeleyecektir
+                search_prefix_trie(trieRoot, arananOnEk, bookList, bookCount);
+                
+                // Aramayı genel geçmişe (Stack) eklemek istersen, 
+                // Öneki eklemek yerine tam sonuçları göstermek daha iyidir.
+                break;
+            }
             default:
-                printf("\n[!] Gecersiz secim, tekrar deneyin.\n");
+                printf("\nGecersiz secim.\n");
         }
     }
 
-    // 4. ADIM: Bellek Temizliği
     free(bookList);
-    freeStack(searchHistory); // Stack için ayrılan belleği temizle
+    freeStack(searchHistory);
+    // free_trie(trieRoot); // Gerekirse eklenebilir
     return 0;
 }

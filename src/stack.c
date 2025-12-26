@@ -3,11 +3,13 @@
 #include <string.h>
 #include "../include/stack.h"
 
+// Arkadaşının book.h içindeki tanımına uygun olarak:
+// char last_search[MAX_STR] ismini kullanıyoruz.
+
 void push(StackNode** top, const char* title) {
     StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
     if (newNode == NULL) return;
 
-    // bookTitle yerine last_search kullanıyoruz (book.h ile uyum için)
     strncpy(newNode->last_search, title, MAX_STR);
     newNode->last_search[MAX_STR - 1] = '\0';
 
@@ -25,7 +27,6 @@ void displayStack(StackNode* top) {
     StackNode* current = top;
     int i = 1;
     while (current != NULL) {
-        // Burada da last_search kullanıyoruz
         printf("%d. %s\n", i++, current->last_search);
         current = current->next;
     }
