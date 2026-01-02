@@ -8,7 +8,8 @@
 #include "../include/stack.h"
 #include "../include/trie.h"
 #include "../include/sort.h"
-#include "../include/queue.h" // Yeni eklendi
+#include "../include/queue.h"
+#include "../include/graph.h" // Navigasyon için yeni eklendi
 
 int main() {
     int bookCount = 0;
@@ -16,7 +17,8 @@ int main() {
     StackNode* searchHistory = NULL; 
     AVLNode* root = NULL;
     TrieNode* trieRoot = createTrieNode(); 
-    Queue* loanQueue = createQueue(); // Ödünç kuyruğu başlatıldı
+    Queue* loanQueue = createQueue(); 
+    Graph* libraryMap = createGraph(); // Graf haritası başlatıldı
 
     if (bookList == NULL) {
         printf("Bellek ayirma hatasi!\n");
@@ -39,7 +41,8 @@ int main() {
         printf("2. Kitaplari Sirala (Puan/Alfabetik)\n");
         printf("3. Arama Gecmisi (Stack)\n");
         printf("4. Akilli Arama (Isim/Anahtar Kelime - Trie)\n"); 
-        printf("5. Odunc Al / Iade Et (Queue - FIFO)\n"); // Yeni menü seçeneği
+        printf("5. Odunc Al / Iade Et (Queue - FIFO)\n");
+        printf("6. Kitap Bolumune Yol Tarifi (Dijkstra - Graph)\n"); // Yeni Seçenek
         printf("0. Cikis\n");
         printf("Seciminiz: ");
         
@@ -51,79 +54,58 @@ int main() {
         if (choice == 0) break;
 
         switch (choice) {
-            case 1: { // ID ARAMA (AVL)
-                int arananID;
-                printf("\nID girin: ");
-                scanf("%d", &arananID);
-                AVLNode* sonuc = search_avl(root, arananID);
-                if (sonuc) {
-                    printf("\n-----------------------------------\n");
-                    printf("   KITAP BULUNDU!\n");
-                    printf("ID:     %d | Ad: %s\n", sonuc->data.id, sonuc->data.title);
-                    printf("-----------------------------------\n");
-                    push(&searchHistory, sonuc->data.title);
-                } else printf("\n[HATA] ID bulunamadi.\n");
+            case 1: { // ID ARAMA
+                int id; printf("\nID girin: "); scanf("%d", &id);
+                AVLNode* s = search_avl(root, id);
+                if (s) {
+                    printf("\n[BULUNDU] %s\n", s->data.title);
+                    push(&searchHistory, s->data.title);
+                } else printf("\n[HATA] Bulunamadi.\n");
                 break;
             }
-            case 2: { // SIRALAMA MENÜSÜ
-                int sortChoice;
-                printf("\n--- SIRALAMA YONTEMI SECIN ---\n");
-                printf("1. Artan Puan (QuickSort)\n");
-                printf("2. Azalan Puan (HeapSort)\n");
-                printf("3. Alfabetik (MergeSort)\n");
-                printf("Seciminiz: ");
-                scanf("%d", &sortChoice);
-
-                if (sortChoice == 1) quickSort(bookList, 0, bookCount - 1);
-                else if (sortChoice == 2) heapSort(bookList, bookCount);
-                else if (sortChoice == 3) mergeSort(bookList, 0, bookCount - 1);
-
+            case 2: { // SIRALAMA
+                int sc; printf("\n1.Artan 2.Azalan 3.Alfabetik: "); scanf("%d", &sc);
+                if (sc == 1) quickSort(bookList, 0, bookCount - 1);
+                else if (sc == 2) heapSort(bookList, bookCount);
+                else if (sc == 3) mergeSort(bookList, 0, bookCount - 1);
+                
                 printf("\n%-5s | %-25s | %-5s\n", "ID", "Kitap Adi", "Puan");
-                printf("--------------------------------------------\n");
-                for (int i = 0; i < bookCount; i++) {
+                for (int i = 0; i < bookCount; i++)
                     printf("%-5d | %-25s | %.1f\n", bookList[i].id, bookList[i].title, bookList[i].score);
-                }
                 break;
             }
-            case 3:
-                displayStack(searchHistory);
-                break;
-            case 4: { // AKILLI ARAMA (TRIE)
-                char arananKelime[MAX_STR];
-                printf("\nKitap Ara.. ");
-                scanf(" %s", arananKelime);
-                search_prefix_trie(trieRoot, arananKelime, bookList, bookCount);
+            case 3: displayStack(searchHistory); break;
+            case 4: { // TRIE ARAMA
+                char kelime[MAX_STR]; printf("\nKitap Ara.. "); scanf("%s", kelime);
+                search_prefix_trie(trieRoot, kelime, bookList, bookCount);
                 break;
             }
-            case 5: { // ODUNC / IADE (QUEUE)
-                int qChoice;
-                printf("\n--- ODUNC TAKIP SISTEMI ---\n");
-                printf("1. Kitap Odunc Al (Ekle)\n");
-                printf("2. Kitap Iade Et (FIFO - Ilk Alani Cikar)\n");
-                printf("3. Odunc Listesini Goruntule\n");
-                printf("Seciminiz: ");
-                scanf("%d", &qChoice);
-
-                if (qChoice == 1) {
-                    char uName[MAX_STR], bTitle[MAX_STR];
-                    printf("Adiniz: "); scanf(" %[^\n]s", uName);
-                    printf("Kitap Adi: "); scanf(" %[^\n]s", bTitle);
-                    enqueue_loan(loanQueue, uName, bTitle);
-                } else if (qChoice == 2) {
-                    dequeue_return(loanQueue);
-                } else if (qChoice == 3) {
-                    displayLoans(loanQueue);
-                }
+            case 5: { // QUEUE
+                int qc; printf("\n1.Odunc Al 2.Iade Et 3.Liste: "); scanf("%d", &qc);
+                if (qc == 1) {
+                    char u[MAX_STR], b[MAX_STR];
+                    printf("Adiniz: "); scanf(" %[^\n]s", u);
+                    printf("Kitap: "); scanf(" %[^\n]s", b);
+                    enqueue_loan(loanQueue, u, b);
+                } else if (qc == 2) dequeue_return(loanQueue);
+                else displayLoans(loanQueue);
                 break;
             }
-            default:
-                printf("\nGecersiz secim.\n");
+            case 6: { // DIJKSTRA NAVIGASYON
+                int hedef;
+                printf("\n--- BOLUM SECIN ---\n");
+                printf("1. Roman  2. Tarih  3. Bilim  4. Yazilim  5. Sanat\n");
+                printf("Hedef bolum no: "); scanf("%d", &hedef);
+                if(hedef >= 1 && hedef <= 5)
+                    dijkstra(libraryMap, 0, hedef); // Giris'ten (0) hedefe
+                else printf("\nGecersiz bolum.\n");
+                break;
+            }
+            default: printf("\nGecersiz secim.\n");
         }
     }
 
-    // Temizlik
     free(bookList);
     freeStack(searchHistory);
-    // Kuyruk temizliği eklenebilir
     return 0;
 }
