@@ -7,7 +7,8 @@
 #include "../include/gui.h"
 #include "../include/stack.h"
 #include "../include/trie.h"
-#include "../include/sort.h" // Sıralama başlık dosyası eklendi
+#include "../include/sort.h"
+#include "../include/queue.h" // Yeni eklendi
 
 int main() {
     int bookCount = 0;
@@ -15,6 +16,7 @@ int main() {
     StackNode* searchHistory = NULL; 
     AVLNode* root = NULL;
     TrieNode* trieRoot = createTrieNode(); 
+    Queue* loanQueue = createQueue(); // Ödünç kuyruğu başlatıldı
 
     if (bookList == NULL) {
         printf("Bellek ayirma hatasi!\n");
@@ -36,7 +38,8 @@ int main() {
         printf("1. Kitap Ara (ID ile - AVL)\n");
         printf("2. Kitaplari Sirala (Puan/Alfabetik)\n");
         printf("3. Arama Gecmisi (Stack)\n");
-        printf("4. Kitap Ara (Isim/Anahtar Kelime - Trie)\n"); 
+        printf("4. Akilli Arama (Isim/Anahtar Kelime - Trie)\n"); 
+        printf("5. Odunc Al / Iade Et (Queue - FIFO)\n"); // Yeni menü seçeneği
         printf("0. Cikis\n");
         printf("Seciminiz: ");
         
@@ -71,18 +74,10 @@ int main() {
                 printf("Seciminiz: ");
                 scanf("%d", &sortChoice);
 
-                if (sortChoice == 1) {
-                    quickSort(bookList, 0, bookCount - 1);
-                    printf("\n[OK] QuickSort ile puana gore (Artan) siralandi.\n");
-                } else if (sortChoice == 2) {
-                    heapSort(bookList, bookCount);
-                    printf("\n[OK] HeapSort ile puana gore (Azalan) siralandi.\n");
-                } else if (sortChoice == 3) {
-                    mergeSort(bookList, 0, bookCount - 1);
-                    printf("\n[OK] MergeSort ile alfabetik siralandi.\n");
-                }
+                if (sortChoice == 1) quickSort(bookList, 0, bookCount - 1);
+                else if (sortChoice == 2) heapSort(bookList, bookCount);
+                else if (sortChoice == 3) mergeSort(bookList, 0, bookCount - 1);
 
-                // Sıralanmış Listeyi Yazdır
                 printf("\n%-5s | %-25s | %-5s\n", "ID", "Kitap Adi", "Puan");
                 printf("--------------------------------------------\n");
                 for (int i = 0; i < bookCount; i++) {
@@ -100,12 +95,35 @@ int main() {
                 search_prefix_trie(trieRoot, arananKelime, bookList, bookCount);
                 break;
             }
+            case 5: { // ODUNC / IADE (QUEUE)
+                int qChoice;
+                printf("\n--- ODUNC TAKIP SISTEMI ---\n");
+                printf("1. Kitap Odunc Al (Ekle)\n");
+                printf("2. Kitap Iade Et (FIFO - Ilk Alani Cikar)\n");
+                printf("3. Odunc Listesini Goruntule\n");
+                printf("Seciminiz: ");
+                scanf("%d", &qChoice);
+
+                if (qChoice == 1) {
+                    char uName[MAX_STR], bTitle[MAX_STR];
+                    printf("Adiniz: "); scanf(" %[^\n]s", uName);
+                    printf("Kitap Adi: "); scanf(" %[^\n]s", bTitle);
+                    enqueue_loan(loanQueue, uName, bTitle);
+                } else if (qChoice == 2) {
+                    dequeue_return(loanQueue);
+                } else if (qChoice == 3) {
+                    displayLoans(loanQueue);
+                }
+                break;
+            }
             default:
                 printf("\nGecersiz secim.\n");
         }
     }
 
+    // Temizlik
     free(bookList);
     freeStack(searchHistory);
+    // Kuyruk temizliği eklenebilir
     return 0;
 }
