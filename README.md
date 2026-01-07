@@ -96,3 +96,43 @@ Windows komut satırını (CMD) proje klasöründe açın ve aşağıdaki komutu
 
 ```cmd
 gcc src/main.c src/gui.c src/trie.c src/sort.c src/queue.c src/stack.c src/search.c src/io.c src/cJSON.c -o kutuphane_gui.exe -O2 -Wall -I include -L lib -lraylib -lopengl32 -lgdi32 -lwinmm
+---
+
+## Zaman Karmasikligi Analizi
+
+Projede kullanılan veri yapıları ve algoritmaların performans analizi aşağıdaki gibidir:
+
+| Islem | Kullanilan Yapi | Zaman Karmasikligi |
+| :--- | :--- | :--- |
+| **Arama (Search)** | Trie + Linked List | **O(m)** (m: kelime uzunluğu) |
+| **Siralama (Artan)** | Quick Sort | **O(n log n)** |
+| **Siralama (Azalan)** | Heap Sort | **O(n log n)** |
+| **Siralama (Alfabetik)** | Merge Sort | **O(n log n)** |
+| **Gecmise Ekleme** | Stack (Push) | **O(1)** |
+| **Odunc Verme** | Queue (Enqueue) | **O(1)** |
+| **Iade Alma** | Queue Traversal | **O(k)** (k: kuyruk boyutu) |
+
+---
+
+## Gelistirme Sureci ve Cozülen Problemler
+
+Proje geliştirme sürecinde karşılaşılan kritik teknik sorunlar ve çözümleri şunlardır:
+
+### 1. Coklu Sonuc Sorunu (Yazar Aramasi)
+* **Sorun:** Standart Trie yapısında her düğüm tek bir `int book_id` tutuyordu. Bu durum, aynı isme veya aynı yazara sahip birden fazla kitap olduğunda (örneğin "Dostoyevski" arandığında birden çok kitap gelmesi gerekirken) veri kaybına yol açıyordu.
+* **Cozum:** Trie düğüm yapısı (`TrieNode`) güncellenerek içine bir **Linked List (IdNode)** eklendi. Böylece bir düğüm, kendisiyle eşleşen tüm kitapların ID'lerini liste halinde saklayabilir hale geldi.
+
+### 2. Turkce Karakter ve Font Destegi
+* **Sorun:** Raylib varsayılan fontu Türkçe karakterleri (İ, ş, ğ...) ve bazı noktalama işaretlerini içermediği için ekranda bozuk semboller oluşuyordu.
+* **Cozum:** `LoadFontEx` fonksiyonu kullanılarak özel bir `Codepoint` dizisi (ASCII + Türkçe Unicode aralıkları) ile font yüklemesi yapıldı. Ayrıca klavye girdileri `CodepointToUTF8` ile işlenerek arama çubuğuna doğru aktarıldı.
+
+### 3. Normalizasyon
+* **Sorun:** Kullanıcı "Çalıkuşu" aratırken veritabanındaki "calikusu" ile eşleşmiyordu.
+* **Cozum:** Giriş verisi ve veritabanı verisi Trie üzerinde işlenirken Türkçe karakterleri İngilizce karşılıklarına (Ç->c, Ş->s) dönüştüren bir normalizasyon katmanı eklendi.
+
+---
+
+## Gelistirici
+
+**Ad Soyad:** Zeynep Tuğba
+**Ders:** Veri Yapıları ve Algoritmalar
