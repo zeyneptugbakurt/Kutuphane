@@ -1,5 +1,7 @@
 # Kutuphane Yonetim Sistemi
 
+**GitHub Deposu:** [https://github.com/zeyneptugbakurt/Kutuphane](https://github.com/zeyneptugbakurt/Kutuphane)
+
 Bu proje, Veri Yapıları ve Algoritmalar dersi kapsamında C programlama dili kullanılarak geliştirilmiştir. Projenin temel amacı, teorik olarak öğrenilen veri yapılarının (Trie, Stack, Queue, Linked List) ve sıralama algoritmalarının (Quick Sort, Heap Sort, Merge Sort) gerçek bir senaryo üzerinde, grafiksel bir arayüz (GUI) ile uygulanmasıdır.
 
 Arayüz tasarımı ve kullanıcı etkileşimi için Raylib kütüphanesi kullanılmıştır.
@@ -131,8 +133,3 @@ Proje geliştirme sürecinde karşılaşılan kritik teknik sorunlar ve çözüm
 * **Cozum:** Giriş verisi ve veritabanı verisi Trie üzerinde işlenirken Türkçe karakterleri İngilizce karşılıklarına (Ç->c, Ş->s) dönüştüren bir normalizasyon katmanı eklendi.
 
 ---
-
-## Gelistirici
-
-**Ad Soyad:** Zeynep Tuğba
-**Ders:** Veri Yapıları ve Algoritmalar
