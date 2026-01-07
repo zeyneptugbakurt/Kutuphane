@@ -21,5 +21,6 @@ Queue* createQueue();
 void enqueue_loan(Queue* q, const char* userName, const char* bookTitle);
 void dequeue_return(Queue* q);
 void displayLoans(Queue* q);
+int remove_specific_loan(Queue* q, const char* bookTitle);
 
 #endif

@@ -52,9 +52,9 @@ void enqueue_loan(Queue* q, const char* userName, const char* bookTitle)
     }
 }
 
-
 /* --------------------------------------------------
-   İADE ET (DEQUEUE - FIFO)
+   SIRADAKİNİ İADE ET (DEQUEUE - FIFO)
+   (Bu fonksiyon sadece en baştakini siler)
 -------------------------------------------------- */
 void dequeue_return(Queue* q) {
     if (q->front == NULL) {
@@ -100,4 +100,47 @@ void displayLoans(Queue* q) {
                curr->dueDate);
         curr = curr->next;
     }
+}
+
+/* --------------------------------------------------
+   BELİRLİ BİR KİTABI KUYRUKTAN SİL (Ortadan Silme)
+   (GUI'deki 'İade Et' butonu için gereklidir)
+-------------------------------------------------- */
+int remove_specific_loan(Queue* q, const char* bookTitle) {
+    if (!q || !q->front) return 0;
+
+    QueueNode *current = q->front;
+    QueueNode *prev = NULL;
+
+    // Listeyi dolaş
+    while (current != NULL) {
+        if (strcmp(current->bookTitle, bookTitle) == 0) {
+            // Eşleşme bulundu, silme işlemi başlıyor:
+            
+            // 1. Eğer silinecek eleman en baştaysa (Head)
+            if (prev == NULL) {
+                q->front = current->next;
+                // Eğer liste tamamen boşaldıysa rear'ı da sıfırla
+                if (q->front == NULL) {
+                    q->rear = NULL;
+                }
+            } 
+            // 2. Eğer eleman arada veya sondaysa
+            else {
+                prev->next = current->next;
+                // Eğer sildiğimiz eleman en sondaysa (Tail), rear'ı güncelle
+                if (prev->next == NULL) {
+                    q->rear = prev;
+                }
+            }
+
+            free(current);
+            return 1; // Başarıyla silindi
+        }
+        
+        // Bir sonraki düğüme geç
+        prev = current;
+        current = current->next;
+    }
+    return 0; // Kitap bulunamadı
 }
