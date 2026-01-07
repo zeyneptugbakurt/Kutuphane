@@ -27,7 +27,7 @@ typedef enum { FILTER_NONE, FILTER_SCORE_ASC, FILTER_SCORE_DESC, FILTER_ALPHABET
 -------------------------------------------------- */
 static StackNode* historyStack = NULL;
 static Queue* loanQueue = NULL;
-static bool borrowed[200] = { false };
+static bool borrowed[200] = { false }; // Kitapların ödünç durumunu tutar
 
 // Ekranda gösterilecek mevcut kitap listesi
 static Book displayList[200]; 
@@ -58,7 +58,7 @@ void apply_current_sorting() {
 -------------------------------------------------- */
 void start_gui(Book *library, int count)
 {
-    InitWindow(1200, 800, "Kütüphane Yönetim Paneli");
+    InitWindow(1400, 750, "Kütüphane Yönetim Paneli");
     SetTargetFPS(60);
     loanQueue = createQueue();
     
@@ -82,13 +82,18 @@ void start_gui(Book *library, int count)
     while (!WindowShouldClose())
     {
         Vector2 mouse = GetMousePosition();
-        scrollOffset -= GetMouseWheelMove() * 35;
-        if (scrollOffset < 0) scrollOffset = 0;
+        
+        // Scroll işlemi (Sadece listelerde aktif)
+        if (page == PAGE_HOME || page == PAGE_LOANS) {
+            scrollOffset -= GetMouseWheelMove() * 35;
+            if (scrollOffset < 0) scrollOffset = 0;
+        } else {
+            scrollOffset = 0;
+        }
 
         /* ---------- INPUT VE ARAMA (TRIE KULLANIMI) ---------- */
         if (page == PAGE_HOME) 
         {
-            // Klavye girişlerini al
             int key = GetCharPressed();
             while (key > 0) {
                 if (letterCount < 126) {
@@ -98,7 +103,6 @@ void start_gui(Book *library, int count)
                 key = GetCharPressed();
             }
 
-            // Silme işlemi (Backspace)
             if (IsKeyPressed(KEY_BACKSPACE) && letterCount > 0) {
                 searchText[--letterCount] = '\0';
                 if (letterCount == 0) {
@@ -109,7 +113,6 @@ void start_gui(Book *library, int count)
                 }
             }
 
-            // ARAMA TETİKLEME (Enter tuşu ile Trie üzerinden arama yapar)
             if (IsKeyPressed(KEY_ENTER) && letterCount > 0) {
                 push(&historyStack, searchText);
                 displayCount = search_books_by_prefix(library, count, searchText, displayList);
@@ -119,52 +122,59 @@ void start_gui(Book *library, int count)
             }
         }
 
-        /* ---------- GÖRSEL BUTONLAR VE ETKİLEŞİM ---------- */
+        /* ---------- TIKLAMA VE MENÜ ETKİLEŞİMİ ---------- */
         Rectangle searchBar  = {40,140,550,45};
-        Rectangle btnFilter  = {620,140,140,45};
+        // Filtre butonu genişliği 140 (Yükseklik 45)
+        Rectangle btnFilter  = {620,140,140,45}; 
         Rectangle btnHistory = {775,140,120,45};
         Rectangle btnLoans   = {910,140,220,45};
         Rectangle btnBack    = {40,140,120,45};
 
         if (page == PAGE_HOME) {
-            // FİLTRE BUTONU MANTIĞI
+            // FİLTRE BUTONU
             if (CheckCollisionPointRec(mouse, btnFilter) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 showFilterMenu = !showFilterMenu;
             }
             
-            // Eğer Filtre menüsü açıksa butonları kontrol et
+            // Filtre Menüsü Seçimleri
             if (showFilterMenu) {
                 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                     bool clickedOption = false;
-                    if (CheckCollisionPointRec(mouse, (Rectangle){620, 190, 200, 30})) {
+                    // Her bir seçenek butonuyla aynı boyutta: 140x45
+                    // 1. Seçenek (185 - 230)
+                    if (CheckCollisionPointRec(mouse, (Rectangle){620, 185, 140, 45})) {
                         activeFilter = FILTER_SCORE_ASC; clickedOption = true;
                     } 
-                    else if (CheckCollisionPointRec(mouse, (Rectangle){620, 225, 200, 30})) {
+                    // 2. Seçenek (230 - 275)
+                    else if (CheckCollisionPointRec(mouse, (Rectangle){620, 230, 140, 45})) {
                         activeFilter = FILTER_SCORE_DESC; clickedOption = true;
                     } 
-                    else if (CheckCollisionPointRec(mouse, (Rectangle){620, 260, 200, 30})) {
+                    // 3. Seçenek (275 - 320)
+                    else if (CheckCollisionPointRec(mouse, (Rectangle){620, 275, 140, 45})) {
                         activeFilter = FILTER_ALPHABETIC; clickedOption = true;
                     }
 
                     if (clickedOption) {
                         apply_current_sorting();
-                        showFilterMenu = false; // Seçim yapılınca menüyü kapat
+                        showFilterMenu = false;
                     } else if (!CheckCollisionPointRec(mouse, btnFilter)) {
-                        // Menü dışına ve filtre butonuna basılmadıysa menüyü kapat
                         showFilterMenu = false; 
                     }
                 }
             } 
             else {
-                // Filtre menüsü kapalıysa diğer butonlara basılabilir
+                // Diğer Sayfa Geçişleri
                 if (CheckCollisionPointRec(mouse, btnHistory) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
                     page = PAGE_HISTORY;
-                else if (CheckCollisionPointRec(mouse, btnLoans) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                else if (CheckCollisionPointRec(mouse, btnLoans) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                     page = PAGE_LOANS;
+                    scrollOffset = 0;
+                }
             }
         } 
         else if (CheckCollisionPointRec(mouse, btnBack) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
             page = PAGE_HOME;
+            scrollOffset = 0;
         }
 
         /* ---------- ÇİZİM ---------- */
@@ -177,7 +187,6 @@ void start_gui(Book *library, int count)
             DrawRectangleLinesEx(searchBar, 2, COLOR_PASTEL_PINK);
             DrawTextEx(font, letterCount ? searchText : "Kitap ara...", (Vector2){55,152}, 20, 1, letterCount ? COLOR_TEXT : LIGHTGRAY);
 
-            // Filtreler Butonu
             DrawRectangleRounded(btnFilter, 0.3, 10, COLOR_PASTEL_PINK);
             DrawTextEx(font, "Filtreler", (Vector2){655, 152}, 18, 1, WHITE);
 
@@ -186,10 +195,20 @@ void start_gui(Book *library, int count)
             DrawRectangleRounded(btnLoans, 0.3, 10, COLOR_PASTEL_PINK);
             DrawTextEx(font, "Ödünç Alınanlar", (Vector2){935, 152}, 18, 1, WHITE);
 
-            // --- 1. ADIM: ÖNCE KİTAP LİSTESİNİ ÇİZ (Altta kalsın) ---
+            // --- 1. ADIM: KİTAP LİSTESİ (ALT KATMAN) ---
             int visibleIdx = 0;
             for (int i = 0; i < displayCount; i++) {
-                if (borrowed[i]) continue;
+                
+                int originalIndex = -1;
+                for(int k=0; k<count; k++) {
+                    if(strcmp(library[k].title, displayList[i].title) == 0) {
+                        originalIndex = k;
+                        break;
+                    }
+                }
+
+                if (originalIndex != -1 && borrowed[originalIndex]) continue;
+
                 float yPos = 240 + (visibleIdx * 75) - scrollOffset;
                 if (yPos < 180 || yPos > GetScreenHeight()) { visibleIdx++; continue; }
 
@@ -203,24 +222,28 @@ void start_gui(Book *library, int count)
                 DrawTextEx(font, "Ödünç Al", (Vector2){875, yPos + 22}, 15, 1, WHITE);
 
                 if (CheckCollisionPointRec(mouse, btnBorrow) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                    // Eğer menü açıksa arkadaki butona tıklanmasını engellemek için basit bir kontrol
                     if (!showFilterMenu) {
                         enqueue_loan(loanQueue, "Zeynep", displayList[i].title);
-                        borrowed[i] = true;
+                        if (originalIndex != -1) borrowed[originalIndex] = true;
                     }
                 }
                 visibleIdx++;
             }
 
-            // --- 2. ADIM: SONRA FİLTRE MENÜSÜNÜ ÇİZ (Üstte kalsın) ---
-            // Bu kod bloğunu kitap döngüsünün altına aldık, böylece menü kitapların üstüne çizilecek.
+            // --- 2. ADIM: FİLTRE MENÜSÜ (ÜST KATMAN) ---
             if (showFilterMenu) {
-                // Menünün altına hafif bir gölge veya arka plan ekleyerek okunabilirliği artırıyoruz
-                DrawRectangle(620, 185, 220, 110, WHITE);
-                DrawRectangleLines(620, 185, 220, 110, COLOR_PASTEL_PINK);
-                DrawTextEx(font, "Artan Puan", (Vector2){630, 195}, 16, 1, COLOR_TEXT);
-                DrawTextEx(font, "Azalan Puan", (Vector2){630, 230}, 16, 1, COLOR_TEXT);
-                DrawTextEx(font, "Alfabetik", (Vector2){630, 265}, 16, 1, COLOR_TEXT);
+                // Menü kutusu: Genişlik 140, Yükseklik 135 (3x45)
+                DrawRectangle(620, 185, 140, 135, WHITE);
+                DrawRectangleLines(620, 185, 140, 135, COLOR_PASTEL_PINK);
+                
+                // Seçenekler (Font boyutu 18, Yükseklik 45px aralıklı)
+                DrawTextEx(font, "Artan Puan", (Vector2){635, 198}, 18, 1, COLOR_TEXT);
+                DrawTextEx(font, "Azalan Puan", (Vector2){635, 243}, 18, 1, COLOR_TEXT);
+                DrawTextEx(font, "Alfabetik", (Vector2){635, 288}, 18, 1, COLOR_TEXT);
+                
+                // Ayırıcı Çizgiler (Opsiyonel ama şık durur)
+                DrawLine(620, 230, 760, 230, Fade(COLOR_PASTEL_PINK, 0.5f));
+                DrawLine(620, 275, 760, 275, Fade(COLOR_PASTEL_PINK, 0.5f));
             }
         } 
         else if (page == PAGE_HISTORY) {
@@ -228,7 +251,6 @@ void start_gui(Book *library, int count)
             DrawRectangleRounded(btnBack, 0.3, 10, COLOR_PASTEL_PINK);
             DrawTextEx(font, "Geri", (Vector2){75, 152}, 18, 1, WHITE);
             
-            // GEÇMİŞ LİSTESİ
             StackNode* t = historyStack;
             for (int i = 0; t && i < 15; i++, t = t->next)
                 DrawTextEx(font, t->last_search, (Vector2){100, 200 + i * 40}, 24, 1, COLOR_TEXT);
@@ -238,21 +260,52 @@ void start_gui(Book *library, int count)
             DrawRectangleRounded(btnBack, 0.3, 10, COLOR_PASTEL_PINK);
             DrawTextEx(font, "Geri", (Vector2){75, 152}, 18, 1, WHITE);
             
-            // ÖDÜNÇ LİSTESİ
             QueueNode* curr = loanQueue->front;
             int idx = 0;
+            bool actionTaken = false; 
+
             while (curr) {
-                DrawRectangleRounded((Rectangle){100, 200 + idx * 80, 1000, 70}, 0.2, 10, Fade(COLOR_PASTEL_PINK, 0.1f));
+                float yPos = 200 + idx * 80 - scrollOffset;
+
+                // Sadece ekrana sığanları çiz
+                if (yPos > 100 && yPos < GetScreenHeight()) {
+                    
+                    DrawRectangleRounded((Rectangle){100, yPos, 1000, 70}, 0.2, 10, Fade(COLOR_PASTEL_PINK, 0.1f));
+                    
+                    // Kitap Bilgileri
+                    DrawTextEx(font, curr->bookTitle, (Vector2){120, yPos + 10}, 20, 1, COLOR_TEXT);
+                    DrawTextEx(font, curr->userName, (Vector2){120, yPos + 40}, 16, 1, GRAY);
+                    DrawTextEx(font, TextFormat("Verilis: %s", curr->borrowDate), (Vector2){720, yPos + 15}, 16, 1, GRAY);
+                    DrawTextEx(font, TextFormat("Son Teslim: %s", curr->dueDate), (Vector2){720, yPos + 40}, 16, 1, COLOR_RED_ALERT);
+
+                    // --- İADE ET BUTONU (Pastel Pembe) ---
+                    Rectangle btnReturn = {960, yPos + 20, 120, 30};
+                    DrawRectangleRounded(btnReturn, 0.3, 8, COLOR_PASTEL_PINK); 
+                    DrawTextEx(font, "Iade Et", (Vector2){985, yPos + 25}, 16, 1, WHITE);
+
+                    // Tıklama Kontrolü
+                    if (!actionTaken && CheckCollisionPointRec(mouse, btnReturn) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                        
+                        // 1. Kitabı ana kütüphanede bul ve borrowed işaretini kaldır
+                        for(int k = 0; k < count; k++) {
+                            if(strcmp(library[k].title, curr->bookTitle) == 0) {
+                                borrowed[k] = false;
+                                break;
+                            }
+                        }
+
+                        // 2. Kitabı kuyruktan sil
+                        char titleToDel[200];
+                        strcpy(titleToDel, curr->bookTitle);
+                        remove_specific_loan(loanQueue, titleToDel);
+                        
+                        actionTaken = true; 
+                    }
+                }
                 
-                // Kitap ve Kullanıcı
-                DrawTextEx(font, curr->bookTitle, (Vector2){120, 210 + idx * 80}, 20, 1, COLOR_TEXT);
-                DrawTextEx(font, curr->userName, (Vector2){120, 240 + idx * 80}, 16, 1, GRAY);
-                
-                // Tarihler
-                DrawTextEx(font, TextFormat("Verilis: %s", curr->borrowDate), (Vector2){800, 215 + idx * 80}, 16, 1, GRAY);
-                DrawTextEx(font, TextFormat("Son Teslim: %s", curr->dueDate), (Vector2){800, 240 + idx * 80}, 16, 1, COLOR_RED_ALERT);
-                
-                curr = curr->next; idx++;
+                if (actionTaken) break; 
+                curr = curr->next; 
+                idx++;
             }
         }
 
