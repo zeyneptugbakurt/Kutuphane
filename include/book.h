@@ -1,19 +1,27 @@
 #ifndef BOOK_H
 #define BOOK_H
 
-#define MAX_STR 100
+// Sabitler
+#define MAX_STR 256
+#define ALPHABET_SIZE 36 // 26 Harf + 10 Rakam
 
-// Kitap verisi için temel yapı
-typedef struct {
-    int id;                 // Kitap ID'si (AVL ağacında key olarak kullanılabilir)
-    char title[MAX_STR];    // Kitap adı (Trie ağacı için kullanılacak)
-    char author[MAX_STR];   // Yazar adı
-    char genre[MAX_STR];    // Tür (Filtreleme için)
-    int year;               // Basım yılı (Sıralama için)
-    double score;           // Popülerlik/Skor (Sıralama için)
+// Kitap Yapısı
+typedef struct Book {
+    int id;
+    char title[MAX_STR];
+    char author[MAX_STR];
+    char genre[MAX_STR];    // io.c 'genre' aradığı için ismini düzelttik
+    int year;
+    float score;
 } Book;
 
-// Arkadaşının yazacağı AVL Düğümü
+// StackNode: Diğer dosyaları değiştirmemek için buraya geri ekledik
+typedef struct StackNode {
+    char last_search[MAX_STR]; 
+    struct StackNode *next;
+} StackNode;
+
+// AVLNode: Diğer dosyaları değiştirmemek için buraya geri ekledik
 typedef struct AVLNode {
     Book data;
     struct AVLNode *left;
@@ -21,18 +29,8 @@ typedef struct AVLNode {
     int height;
 } AVLNode;
 
-// Senin yazacağın Stack Yapısı (Undo için)
-typedef struct StackNode {
-    char last_search[MAX_STR]; 
-    struct StackNode *next;
-} StackNode;
-
-// Arkadaşının yazacağı Trie Düğümü (Prefix arama için)
-#define ALPHABET_SIZE 26 // Veya ASCII için 128
-typedef struct TrieNode {
-    struct TrieNode *children[ALPHABET_SIZE];
-    int isEndOfWord;
-    int book_id; // Kelimenin bittiği yerdeki kitabın ID'si
-} TrieNode;
+/* NOT: TrieNode yapısını buraya EKLEMİYORUZ. 
+   O sadece trie.h içinde kalacak, yoksa "redefinition" hatası alırsın.
+*/
 
 #endif

@@ -10,9 +10,6 @@
 #include "../include/search.h"
 #include "../include/queue.h"
 
-/* --------------------------------------------------
-   GÖRSEL AYARLAR
--------------------------------------------------- */
 #define COLOR_BG            (Color){255,250,250,255}
 #define COLOR_PASTEL_PINK   (Color){255,182,193,255}
 #define COLOR_DARK_PINK     (Color){255,140,157,255}
@@ -22,30 +19,20 @@
 typedef enum { PAGE_HOME, PAGE_HISTORY, PAGE_LOANS } GuiPage;
 typedef enum { FILTER_NONE, FILTER_SCORE_ASC, FILTER_SCORE_DESC, FILTER_ALPHABETIC } FilterType;
 
-/* --------------------------------------------------
-   GUI STATE
--------------------------------------------------- */
 static StackNode* historyStack = NULL;
 static Queue* loanQueue = NULL;
-static bool borrowed[200] = { false }; // Kitapların ödünç durumunu tutar
-
-// Ekranda gösterilecek mevcut kitap listesi
+static bool borrowed[200] = { false }; 
 static Book displayList[200]; 
 static int displayCount = 0;
-
 static bool searchActive = false;
 static int scrollOffset = 0;
 static FilterType activeFilter = FILTER_NONE;
 
-/* --------------------------------------------------
-   YARDIMCI GÖRSEL FONKSİYONLAR
--------------------------------------------------- */
 static void drawHeader(Font font, const char* title) {
     DrawRectangle(0, 0, GetScreenWidth(), 100, COLOR_PASTEL_PINK);
     DrawTextEx(font, title, (Vector2){40, 28}, 42, 1, WHITE);
 }
 
-// GUI'den bağımsız sadece sıralama tetikleyici
 void apply_current_sorting() {
     if (displayCount <= 0) return;
     if (activeFilter == FILTER_SCORE_ASC) quickSort(displayList, 0, displayCount - 1);
@@ -53,28 +40,27 @@ void apply_current_sorting() {
     else if (activeFilter == FILTER_ALPHABETIC) mergeSort(displayList, 0, displayCount - 1);
 }
 
-/* --------------------------------------------------
-   ANA GUI FONKSİYONU
--------------------------------------------------- */
 void start_gui(Book *library, int count)
 {
     InitWindow(1400, 750, "Kütüphane Yönetim Paneli");
     SetTargetFPS(60);
     loanQueue = createQueue();
-    
-    // İlk açılışta tüm kütüphaneyi yükle
     memcpy(displayList, library, sizeof(Book) * count);
     displayCount = count;
 
-    /* --- FONT YÜKLEME --- */
-    int codepoints[128];
-    for (int i = 0; i < 95; i++) codepoints[i] = 32 + i;
-    int tr[] = {0x0130,0x0131,0x015E,0x015F,0x011E,0x011F,0x00C7,0x00E7,0x00DC,0x00FC,0x00D6,0x00F6};
-    for (int i = 0; i < 12; i++) codepoints[95+i] = tr[i];
-    Font font = LoadFontEx("resources/arial.ttf", 40, codepoints, 107);
+    // --- FONT YÜKLEME (Genişletilmiş) ---
+    int codepoints[512] = { 0 };
+    int cpCount = 0;
+    // ASCII (32-126) -> Harf, Rakam, Tire, Nokta, Virgül hepsi burada
+    for (int i = 32; i <= 126; i++) codepoints[cpCount++] = i;
+    // Türkçe Karakterler
+    int trIds[] = {0x0130, 0x0131, 0x015E, 0x015F, 0x011E, 0x011F, 0x00C7, 0x00E7, 0x00DC, 0x00FC, 0x00D6, 0x00F6};
+    for(int i=0; i<12; i++) codepoints[cpCount++] = trIds[i];
+
+    Font font = LoadFontEx("resources/arial.ttf", 40, codepoints, cpCount);
     SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
 
-    char searchText[128] = {0};
+    char searchText[256] = {0};
     int letterCount = 0;
     bool showFilterMenu = false;
     GuiPage page = PAGE_HOME;
@@ -82,29 +68,28 @@ void start_gui(Book *library, int count)
     while (!WindowShouldClose())
     {
         Vector2 mouse = GetMousePosition();
-        
-        // Scroll işlemi (Sadece listelerde aktif)
         if (page == PAGE_HOME || page == PAGE_LOANS) {
             scrollOffset -= GetMouseWheelMove() * 35;
             if (scrollOffset < 0) scrollOffset = 0;
-        } else {
-            scrollOffset = 0;
-        }
+        } else scrollOffset = 0;
 
-        /* ---------- INPUT VE ARAMA (TRIE KULLANIMI) ---------- */
-        if (page == PAGE_HOME) 
-        {
+        /* INPUT */
+        if (page == PAGE_HOME) {
             int key = GetCharPressed();
             while (key > 0) {
-                if (letterCount < 126) {
-                    searchText[letterCount++] = (char)key;
+                if ((key >= 32) && (letterCount < 250)) {
+                    int byteSize = 0;
+                    const char* charUtf8 = CodepointToUTF8(key, &byteSize);
+                    for(int i = 0; i < byteSize; i++) searchText[letterCount++] = charUtf8[i];
                     searchText[letterCount] = '\0';
                 }
                 key = GetCharPressed();
             }
 
             if (IsKeyPressed(KEY_BACKSPACE) && letterCount > 0) {
-                searchText[--letterCount] = '\0';
+                letterCount--;
+                while (letterCount > 0 && (searchText[letterCount] & 0xC0) == 0x80) letterCount--;
+                searchText[letterCount] = '\0';
                 if (letterCount == 0) {
                     searchActive = false;
                     memcpy(displayList, library, sizeof(Book) * count);
@@ -112,72 +97,43 @@ void start_gui(Book *library, int count)
                     apply_current_sorting();
                 }
             }
-
             if (IsKeyPressed(KEY_ENTER) && letterCount > 0) {
                 push(&historyStack, searchText);
                 displayCount = search_books_by_prefix(library, count, searchText, displayList);
                 searchActive = true;
                 apply_current_sorting();
                 scrollOffset = 0;
+            } else if (letterCount > 0) {
+                 displayCount = search_books_by_prefix(library, count, searchText, displayList);
+                 apply_current_sorting();
             }
         }
 
-        /* ---------- TIKLAMA VE MENÜ ETKİLEŞİMİ ---------- */
+        /* ETKİLEŞİM */
         Rectangle searchBar  = {40,140,550,45};
-        // Filtre butonu genişliği 140 (Yükseklik 45)
         Rectangle btnFilter  = {620,140,140,45}; 
         Rectangle btnHistory = {775,140,120,45};
         Rectangle btnLoans   = {910,140,220,45};
         Rectangle btnBack    = {40,140,120,45};
 
         if (page == PAGE_HOME) {
-            // FİLTRE BUTONU
-            if (CheckCollisionPointRec(mouse, btnFilter) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                showFilterMenu = !showFilterMenu;
+            if (CheckCollisionPointRec(mouse, btnFilter) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) showFilterMenu = !showFilterMenu;
+            if (showFilterMenu && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                bool clicked = false;
+                if (CheckCollisionPointRec(mouse, (Rectangle){620, 185, 140, 45})) { activeFilter=FILTER_SCORE_ASC; clicked=true; }
+                else if (CheckCollisionPointRec(mouse, (Rectangle){620, 230, 140, 45})) { activeFilter=FILTER_SCORE_DESC; clicked=true; }
+                else if (CheckCollisionPointRec(mouse, (Rectangle){620, 275, 140, 45})) { activeFilter=FILTER_ALPHABETIC; clicked=true; }
+                if (clicked) { apply_current_sorting(); showFilterMenu = false; }
+                else if (!CheckCollisionPointRec(mouse, btnFilter)) showFilterMenu = false;
+            } else if (!showFilterMenu) {
+                if (CheckCollisionPointRec(mouse, btnHistory) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) page = PAGE_HISTORY;
+                else if (CheckCollisionPointRec(mouse, btnLoans) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) { page = PAGE_LOANS; scrollOffset = 0; }
             }
-            
-            // Filtre Menüsü Seçimleri
-            if (showFilterMenu) {
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                    bool clickedOption = false;
-                    // Her bir seçenek butonuyla aynı boyutta: 140x45
-                    // 1. Seçenek (185 - 230)
-                    if (CheckCollisionPointRec(mouse, (Rectangle){620, 185, 140, 45})) {
-                        activeFilter = FILTER_SCORE_ASC; clickedOption = true;
-                    } 
-                    // 2. Seçenek (230 - 275)
-                    else if (CheckCollisionPointRec(mouse, (Rectangle){620, 230, 140, 45})) {
-                        activeFilter = FILTER_SCORE_DESC; clickedOption = true;
-                    } 
-                    // 3. Seçenek (275 - 320)
-                    else if (CheckCollisionPointRec(mouse, (Rectangle){620, 275, 140, 45})) {
-                        activeFilter = FILTER_ALPHABETIC; clickedOption = true;
-                    }
-
-                    if (clickedOption) {
-                        apply_current_sorting();
-                        showFilterMenu = false;
-                    } else if (!CheckCollisionPointRec(mouse, btnFilter)) {
-                        showFilterMenu = false; 
-                    }
-                }
-            } 
-            else {
-                // Diğer Sayfa Geçişleri
-                if (CheckCollisionPointRec(mouse, btnHistory) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-                    page = PAGE_HISTORY;
-                else if (CheckCollisionPointRec(mouse, btnLoans) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                    page = PAGE_LOANS;
-                    scrollOffset = 0;
-                }
-            }
-        } 
-        else if (CheckCollisionPointRec(mouse, btnBack) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            page = PAGE_HOME;
-            scrollOffset = 0;
+        } else if (CheckCollisionPointRec(mouse, btnBack) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            page = PAGE_HOME; scrollOffset = 0;
         }
 
-        /* ---------- ÇİZİM ---------- */
+        /* ÇİZİM */
         BeginDrawing();
         ClearBackground(COLOR_BG);
 
@@ -185,28 +141,15 @@ void start_gui(Book *library, int count)
             drawHeader(font, "KÜTÜPHANE SİSTEMİ");
             DrawRectangleRounded(searchBar, 0.2, 10, WHITE);
             DrawRectangleLinesEx(searchBar, 2, COLOR_PASTEL_PINK);
-            DrawTextEx(font, letterCount ? searchText : "Kitap ara...", (Vector2){55,152}, 20, 1, letterCount ? COLOR_TEXT : LIGHTGRAY);
+            DrawTextEx(font, letterCount ? searchText : "Kitap veya Yazar ara...", (Vector2){55,148}, 28, 1, letterCount ? COLOR_TEXT : Fade(LIGHTGRAY, 0.7f));
+            DrawRectangleRounded(btnFilter, 0.3, 10, COLOR_PASTEL_PINK); DrawTextEx(font, "Filtreler", (Vector2){655, 152}, 18, 1, WHITE);
+            DrawRectangleRounded(btnHistory, 0.3, 10, COLOR_PASTEL_PINK); DrawTextEx(font, "Geçmiş", (Vector2){795, 152}, 18, 1, WHITE);
+            DrawRectangleRounded(btnLoans, 0.3, 10, COLOR_PASTEL_PINK); DrawTextEx(font, "Ödünç Alınanlar", (Vector2){935, 152}, 18, 1, WHITE);
 
-            DrawRectangleRounded(btnFilter, 0.3, 10, COLOR_PASTEL_PINK);
-            DrawTextEx(font, "Filtreler", (Vector2){655, 152}, 18, 1, WHITE);
-
-            DrawRectangleRounded(btnHistory, 0.3, 10, COLOR_PASTEL_PINK);
-            DrawTextEx(font, "Geçmiş", (Vector2){795, 152}, 18, 1, WHITE);
-            DrawRectangleRounded(btnLoans, 0.3, 10, COLOR_PASTEL_PINK);
-            DrawTextEx(font, "Ödünç Alınanlar", (Vector2){935, 152}, 18, 1, WHITE);
-
-            // --- 1. ADIM: KİTAP LİSTESİ (ALT KATMAN) ---
             int visibleIdx = 0;
             for (int i = 0; i < displayCount; i++) {
-                
                 int originalIndex = -1;
-                for(int k=0; k<count; k++) {
-                    if(strcmp(library[k].title, displayList[i].title) == 0) {
-                        originalIndex = k;
-                        break;
-                    }
-                }
-
+                for(int k=0; k<count; k++) { if(displayList[i].id == library[k].id) { originalIndex = k; break; } }
                 if (originalIndex != -1 && borrowed[originalIndex]) continue;
 
                 float yPos = 240 + (visibleIdx * 75) - scrollOffset;
@@ -216,7 +159,6 @@ void start_gui(Book *library, int count)
                 DrawTextEx(font, displayList[i].title, (Vector2){60, yPos + 10}, 20, 1, COLOR_TEXT);
                 DrawTextEx(font, displayList[i].author, (Vector2){60, yPos + 35}, 15, 1, GRAY);
                 DrawTextEx(font, TextFormat("%.1f", displayList[i].score), (Vector2){780, yPos + 22}, 20, 1, COLOR_DARK_PINK);
-
                 Rectangle btnBorrow = {860, yPos + 15, 120, 35};
                 DrawRectangleRounded(btnBorrow, 0.3, 8, COLOR_PASTEL_PINK);
                 DrawTextEx(font, "Ödünç Al", (Vector2){875, yPos + 22}, 15, 1, WHITE);
@@ -229,89 +171,52 @@ void start_gui(Book *library, int count)
                 }
                 visibleIdx++;
             }
-
-            // --- 2. ADIM: FİLTRE MENÜSÜ (ÜST KATMAN) ---
             if (showFilterMenu) {
-                // Menü kutusu: Genişlik 140, Yükseklik 135 (3x45)
                 DrawRectangle(620, 185, 140, 135, WHITE);
                 DrawRectangleLines(620, 185, 140, 135, COLOR_PASTEL_PINK);
-                
-                // Seçenekler (Font boyutu 18, Yükseklik 45px aralıklı)
                 DrawTextEx(font, "Artan Puan", (Vector2){635, 198}, 18, 1, COLOR_TEXT);
                 DrawTextEx(font, "Azalan Puan", (Vector2){635, 243}, 18, 1, COLOR_TEXT);
                 DrawTextEx(font, "Alfabetik", (Vector2){635, 288}, 18, 1, COLOR_TEXT);
-                
-                // Ayırıcı Çizgiler (Opsiyonel ama şık durur)
-                DrawLine(620, 230, 760, 230, Fade(COLOR_PASTEL_PINK, 0.5f));
-                DrawLine(620, 275, 760, 275, Fade(COLOR_PASTEL_PINK, 0.5f));
             }
         } 
         else if (page == PAGE_HISTORY) {
             drawHeader(font, "ARAMA GEÇMİŞİ");
             DrawRectangleRounded(btnBack, 0.3, 10, COLOR_PASTEL_PINK);
             DrawTextEx(font, "Geri", (Vector2){75, 152}, 18, 1, WHITE);
-            
             StackNode* t = historyStack;
-            for (int i = 0; t && i < 15; i++, t = t->next)
-                DrawTextEx(font, t->last_search, (Vector2){100, 200 + i * 40}, 24, 1, COLOR_TEXT);
+            for (int i = 0; t && i < 15; i++, t = t->next) DrawTextEx(font, t->last_search, (Vector2){100, 200 + i * 40}, 24, 1, COLOR_TEXT);
         }
         else if (page == PAGE_LOANS) {
             drawHeader(font, "ÖDÜNÇ ALINANLAR");
             DrawRectangleRounded(btnBack, 0.3, 10, COLOR_PASTEL_PINK);
             DrawTextEx(font, "Geri", (Vector2){75, 152}, 18, 1, WHITE);
-            
             QueueNode* curr = loanQueue->front;
             int idx = 0;
             bool actionTaken = false; 
-
             while (curr) {
                 float yPos = 200 + idx * 80 - scrollOffset;
-
-                // Sadece ekrana sığanları çiz
                 if (yPos > 100 && yPos < GetScreenHeight()) {
-                    
                     DrawRectangleRounded((Rectangle){100, yPos, 1000, 70}, 0.2, 10, Fade(COLOR_PASTEL_PINK, 0.1f));
-                    
-                    // Kitap Bilgileri
                     DrawTextEx(font, curr->bookTitle, (Vector2){120, yPos + 10}, 20, 1, COLOR_TEXT);
                     DrawTextEx(font, curr->userName, (Vector2){120, yPos + 40}, 16, 1, GRAY);
                     DrawTextEx(font, TextFormat("Verilis: %s", curr->borrowDate), (Vector2){720, yPos + 15}, 16, 1, GRAY);
                     DrawTextEx(font, TextFormat("Son Teslim: %s", curr->dueDate), (Vector2){720, yPos + 40}, 16, 1, COLOR_RED_ALERT);
-
-                    // --- İADE ET BUTONU (Pastel Pembe) ---
                     Rectangle btnReturn = {960, yPos + 20, 120, 30};
-                    DrawRectangleRounded(btnReturn, 0.3, 8, COLOR_PASTEL_PINK); 
+                    DrawRectangleRounded(btnReturn, 0.3, 8, COLOR_PASTEL_PINK);
                     DrawTextEx(font, "Iade Et", (Vector2){985, yPos + 25}, 16, 1, WHITE);
-
-                    // Tıklama Kontrolü
                     if (!actionTaken && CheckCollisionPointRec(mouse, btnReturn) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                        
-                        // 1. Kitabı ana kütüphanede bul ve borrowed işaretini kaldır
-                        for(int k = 0; k < count; k++) {
-                            if(strcmp(library[k].title, curr->bookTitle) == 0) {
-                                borrowed[k] = false;
-                                break;
-                            }
-                        }
-
-                        // 2. Kitabı kuyruktan sil
-                        char titleToDel[200];
-                        strcpy(titleToDel, curr->bookTitle);
+                        for(int k = 0; k < count; k++) { if(strcmp(library[k].title, curr->bookTitle) == 0) { borrowed[k] = false; break; } }
+                        char titleToDel[200]; strcpy(titleToDel, curr->bookTitle);
                         remove_specific_loan(loanQueue, titleToDel);
-                        
                         actionTaken = true; 
                     }
                 }
-                
                 if (actionTaken) break; 
-                curr = curr->next; 
-                idx++;
+                curr = curr->next; idx++;
             }
         }
-
         EndDrawing();
     }
-
     freeStack(historyStack);
     while (loanQueue->front) dequeue_return(loanQueue);
     free(loanQueue);
