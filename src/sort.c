@@ -3,7 +3,7 @@
 #include <string.h>
 #include "../include/sort.h"
 
-void swap(Book* a, Book* b) {
+static void swap(Book* a, Book* b) {
     Book temp = *a;
     *a = *b;
     *b = temp;
