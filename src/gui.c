@@ -175,7 +175,7 @@ void start_gui(Book *library, int count)
             drawHeader(font, "KÜTÜPHANE SİSTEMİ");
             DrawRectangleRounded(searchBar, 0.2, 10, WHITE);
             DrawRectangleLinesEx(searchBar, 2, COLOR_PASTEL_PINK);
-            DrawTextEx(font, letterCount ? searchText : "Ara (Trie): Enter'a bas...", (Vector2){55,152}, 20, 1, letterCount ? COLOR_TEXT : LIGHTGRAY);
+            DrawTextEx(font, letterCount ? searchText : "Kitap ara...", (Vector2){55,152}, 20, 1, letterCount ? COLOR_TEXT : LIGHTGRAY);
 
             // Filtreler Butonu
             DrawRectangleRounded(btnFilter, 0.3, 10, COLOR_PASTEL_PINK);
@@ -218,9 +218,9 @@ void start_gui(Book *library, int count)
                 // Menünün altına hafif bir gölge veya arka plan ekleyerek okunabilirliği artırıyoruz
                 DrawRectangle(620, 185, 220, 110, WHITE);
                 DrawRectangleLines(620, 185, 220, 110, COLOR_PASTEL_PINK);
-                DrawTextEx(font, "Puan: Düşük -> Yüksek", (Vector2){630, 195}, 16, 1, COLOR_TEXT);
-                DrawTextEx(font, "Puan: Yüksek -> Düşük", (Vector2){630, 230}, 16, 1, COLOR_TEXT);
-                DrawTextEx(font, "Alfabetik (A-Z)", (Vector2){630, 265}, 16, 1, COLOR_TEXT);
+                DrawTextEx(font, "Artan Puan", (Vector2){630, 195}, 16, 1, COLOR_TEXT);
+                DrawTextEx(font, "Azalan Puan", (Vector2){630, 230}, 16, 1, COLOR_TEXT);
+                DrawTextEx(font, "Alfabetik", (Vector2){630, 265}, 16, 1, COLOR_TEXT);
             }
         } 
         else if (page == PAGE_HISTORY) {

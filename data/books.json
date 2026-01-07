@@ -78,5 +78,726 @@
     "genre": "Fantastik",
     "year": 1954,
     "score": 5.0
+  },
+  {
+    "id": 11,
+    "title": "İnce Memed 1",
+    "author": "Yaşar Kemal",
+    "genre": "Roman",
+    "year": 1955,
+    "score": 4.9
+  },
+  {
+    "id": 12,
+    "title": "Tutunamayanlar",
+    "author": "Oğuz Atay",
+    "genre": "Postmodern Roman",
+    "year": 1972,
+    "score": 4.8
+  },
+  {
+    "id": 13,
+    "title": "Aşk-ı Memnu",
+    "author": "Halid Ziya Uşaklıgil",
+    "genre": "Roman",
+    "year": 1900,
+    "score": 4.6
+  },
+  {
+    "id": 14,
+    "title": "Çalıkuşu",
+    "author": "Reşat Nuri Güntekin",
+    "genre": "Roman",
+    "year": 1922,
+    "score": 4.7
+  },
+  {
+    "id": 15,
+    "title": "Dokuzuncu Hariciye Koğuşu",
+    "author": "Peyami Safa",
+    "genre": "Psikolojik Roman",
+    "year": 1930,
+    "score": 4.5
+  },
+  {
+    "id": 16,
+    "title": "Benim Adım Kırmızı",
+    "author": "Orhan Pamuk",
+    "genre": "Tarihi Roman",
+    "year": 1998,
+    "score": 4.3
+  },
+  {
+    "id": 17,
+    "title": "Puslu Kıtalar Atlası",
+    "author": "İhsan Oktay Anar",
+    "genre": "Fantastik/Tarih",
+    "year": 1995,
+    "score": 4.8
+  },
+  {
+    "id": 18,
+    "title": "Aylak Adam",
+    "author": "Yusuf Atılgan",
+    "genre": "Roman",
+    "year": 1959,
+    "score": 4.6
+  },
+  {
+    "id": 19,
+    "title": "Yaban",
+    "author": "Yakup Kadri Karaosmanoğlu",
+    "genre": "Roman",
+    "year": 1932,
+    "score": 4.4
+  },
+  {
+    "id": 20,
+    "title": "Kuyucaklı Yusuf",
+    "author": "Sabahattin Ali",
+    "genre": "Roman",
+    "year": 1937,
+    "score": 4.8
+  },
+  {
+    "id": 21,
+    "title": "Hayvan Çiftliği",
+    "author": "George Orwell",
+    "genre": "Siyasi Hiciv",
+    "year": 1945,
+    "score": 4.8
+  },
+  {
+    "id": 22,
+    "title": "Cesur Yeni Dünya",
+    "author": "Aldous Huxley",
+    "genre": "Distopya",
+    "year": 1932,
+    "score": 4.6
+  },
+  {
+    "id": 23,
+    "title": "Fahrenheit 451",
+    "author": "Ray Bradbury",
+    "genre": "Distopya",
+    "year": 1953,
+    "score": 4.7
+  },
+  {
+    "id": 24,
+    "title": "Savaş ve Barış",
+    "author": "Lev Tolstoy",
+    "genre": "Tarihi Roman",
+    "year": 1869,
+    "score": 4.8
+  },
+  {
+    "id": 25,
+    "title": "Anna Karenina",
+    "author": "Lev Tolstoy",
+    "genre": "Roman",
+    "year": 1877,
+    "score": 4.7
+  },
+  {
+    "id": 26,
+    "title": "Karamazov Kardeşler",
+    "author": "Fyodor Dostoyevski",
+    "genre": "Roman",
+    "year": 1880,
+    "score": 4.9
+  },
+  {
+    "id": 27,
+    "title": "Dönüşüm",
+    "author": "Franz Kafka",
+    "genre": "Novella",
+    "year": 1915,
+    "score": 4.6
+  },
+  {
+    "id": 28,
+    "title": "Yabancı",
+    "author": "Albert Camus",
+    "genre": "Felsefi Roman",
+    "year": 1942,
+    "score": 4.5
+  },
+  {
+    "id": 29,
+    "title": "Bulantı",
+    "author": "Jean-Paul Sartre",
+    "genre": "Felsefi Roman",
+    "year": 1938,
+    "score": 4.3
+  },
+  {
+    "id": 30,
+    "title": "Beyaz Diş",
+    "author": "Jack London",
+    "genre": "Macera",
+    "year": 1906,
+    "score": 4.6
+  },
+  {
+    "id": 31,
+    "title": "Martin Eden",
+    "author": "Jack London",
+    "genre": "Roman",
+    "year": 1909,
+    "score": 4.8
+  },
+  {
+    "id": 32,
+    "title": "Gurur ve Önyargı",
+    "author": "Jane Austen",
+    "genre": "Romantik",
+    "year": 1813,
+    "score": 4.7
+  },
+  {
+    "id": 33,
+    "title": "Uğultulu Tepeler",
+    "author": "Emily Brontë",
+    "genre": "Gotik Roman",
+    "year": 1847,
+    "score": 4.5
+  },
+  {
+    "id": 34,
+    "title": "Jane Eyre",
+    "author": "Charlotte Brontë",
+    "genre": "Roman",
+    "year": 1847,
+    "score": 4.6
+  },
+  {
+    "id": 35,
+    "title": "Büyük Umutlar",
+    "author": "Charles Dickens",
+    "genre": "Roman",
+    "year": 1861,
+    "score": 4.4
+  },
+  {
+    "id": 36,
+    "title": "İki Şehrin Hikayesi",
+    "author": "Charles Dickens",
+    "genre": "Tarihi Roman",
+    "year": 1859,
+    "score": 4.7
+  },
+  {
+    "id": 37,
+    "title": "Madam Bovary",
+    "author": "Gustave Flaubert",
+    "genre": "Roman",
+    "year": 1856,
+    "score": 4.3
+  },
+  {
+    "id": 38,
+    "title": "Vadideki Zambak",
+    "author": "Honoré de Balzac",
+    "genre": "Roman",
+    "year": 1835,
+    "score": 4.2
+  },
+  {
+    "id": 39,
+    "title": "Monte Kristo Kontu",
+    "author": "Alexandre Dumas",
+    "genre": "Macera",
+    "year": 1844,
+    "score": 4.9
+  },
+  {
+    "id": 40,
+    "title": "Üç Silahşörler",
+    "author": "Alexandre Dumas",
+    "genre": "Macera",
+    "year": 1844,
+    "score": 4.5
+  },
+  {
+    "id": 41,
+    "title": "Don Kişot",
+    "author": "Miguel de Cervantes",
+    "genre": "Klasik",
+    "year": 1605,
+    "score": 4.6
+  },
+  {
+    "id": 42,
+    "title": "Yüzyıllık Yalnızlık",
+    "author": "Gabriel García Márquez",
+    "genre": "Büyülü Gerçekçilik",
+    "year": 1967,
+    "score": 4.8
+  },
+  {
+    "id": 43,
+    "title": "Kırmızı Pazartesi",
+    "author": "Gabriel García Márquez",
+    "genre": "Novella",
+    "year": 1981,
+    "score": 4.5
+  },
+  {
+    "id": 44,
+    "title": "Körlük",
+    "author": "José Saramago",
+    "genre": "Roman",
+    "year": 1995,
+    "score": 4.7
+  },
+  {
+    "id": 45,
+    "title": "Bülbülü Öldürmek",
+    "author": "Harper Lee",
+    "genre": "Roman",
+    "year": 1960,
+    "score": 4.8
+  },
+  {
+    "id": 46,
+    "title": "Çavdar Tarlasında Çocuklar",
+    "author": "J.D. Salinger",
+    "genre": "Roman",
+    "year": 1951,
+    "score": 4.2
+  },
+  {
+    "id": 47,
+    "title": "Muhteşem Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "genre": "Roman",
+    "year": 1925,
+    "score": 4.3
+  },
+  {
+    "id": 48,
+    "title": "Fareler ve İnsanlar",
+    "author": "John Steinbeck",
+    "genre": "Novella",
+    "year": 1937,
+    "score": 4.8
+  },
+  {
+    "id": 49,
+    "title": "Gazap Üzümleri",
+    "author": "John Steinbeck",
+    "genre": "Roman",
+    "year": 1939,
+    "score": 4.7
+  },
+  {
+    "id": 50,
+    "title": "Yaşlı Adam ve Deniz",
+    "author": "Ernest Hemingway",
+    "genre": "Novella",
+    "year": 1952,
+    "score": 4.4
+  },
+  {
+    "id": 51,
+    "title": "Çanlar Kimin İçin Çalıyor",
+    "author": "Ernest Hemingway",
+    "genre": "Roman",
+    "year": 1940,
+    "score": 4.5
+  },
+  {
+    "id": 52,
+    "title": "Otostopçunun Galaksi Rehberi",
+    "author": "Douglas Adams",
+    "genre": "Bilim Kurgu",
+    "year": 1979,
+    "score": 4.7
+  },
+  {
+    "id": 53,
+    "title": "Vakıf",
+    "author": "Isaac Asimov",
+    "genre": "Bilim Kurgu",
+    "year": 1951,
+    "score": 4.6
+  },
+  {
+    "id": 54,
+    "title": "Ben, Robot",
+    "author": "Isaac Asimov",
+    "genre": "Bilim Kurgu",
+    "year": 1950,
+    "score": 4.5
+  },
+  {
+    "id": 55,
+    "title": "Harry Potter ve Felsefe Taşı",
+    "author": "J.K. Rowling",
+    "genre": "Fantastik",
+    "year": 1997,
+    "score": 4.8
+  },
+  {
+    "id": 56,
+    "title": "Taht Oyunları",
+    "author": "George R.R. Martin",
+    "genre": "Fantastik",
+    "year": 1996,
+    "score": 4.7
+  },
+  {
+    "id": 57,
+    "title": "Hobbit",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantastik",
+    "year": 1937,
+    "score": 4.8
+  },
+  {
+    "id": 58,
+    "title": "Sineklerin Tanrısı",
+    "author": "William Golding",
+    "genre": "Roman",
+    "year": 1954,
+    "score": 4.4
+  },
+  {
+    "id": 59,
+    "title": "Otomatik Portakal",
+    "author": "Anthony Burgess",
+    "genre": "Distopya",
+    "year": 1962,
+    "score": 4.3
+  },
+  {
+    "id": 60,
+    "title": "Mülksüzler",
+    "author": "Ursula K. Le Guin",
+    "genre": "Bilim Kurgu",
+    "year": 1974,
+    "score": 4.7
+  },
+  {
+    "id": 61,
+    "title": "Yerdeniz Büyücüsü",
+    "author": "Ursula K. Le Guin",
+    "genre": "Fantastik",
+    "year": 1968,
+    "score": 4.6
+  },
+  {
+    "id": 62,
+    "title": "Adı: Aylin",
+    "author": "Ayşe Kulin",
+    "genre": "Biyografik Roman",
+    "year": 1997,
+    "score": 4.1
+  },
+  {
+    "id": 63,
+    "title": "Semerkant",
+    "author": "Amin Maalouf",
+    "genre": "Tarihi Roman",
+    "year": 1988,
+    "score": 4.6
+  },
+  {
+    "id": 64,
+    "title": "Sofie'nin Dünyası",
+    "author": "Jostein Gaarder",
+    "genre": "Felsefi Roman",
+    "year": 1991,
+    "score": 4.4
+  },
+  {
+    "id": 65,
+    "title": "Uçurtma Avcısı",
+    "author": "Khaled Hosseini",
+    "genre": "Roman",
+    "year": 2003,
+    "score": 4.8
+  },
+  {
+    "id": 66,
+    "title": "Bin Muhteşem Güneş",
+    "author": "Khaled Hosseini",
+    "genre": "Roman",
+    "year": 2007,
+    "score": 4.7
+  },
+  {
+    "id": 67,
+    "title": "Da Vinci Şifresi",
+    "author": "Dan Brown",
+    "genre": "Gerilim",
+    "year": 2003,
+    "score": 4.1
+  },
+  {
+    "id": 68,
+    "title": "Melekler ve Şeytanlar",
+    "author": "Dan Brown",
+    "genre": "Gerilim",
+    "year": 2000,
+    "score": 4.2
+  },
+  {
+    "id": 69,
+    "title": "Ejderha Dövmeli Kız",
+    "author": "Stieg Larsson",
+    "genre": "Polisiye",
+    "year": 2005,
+    "score": 4.5
+  },
+  {
+    "id": 70,
+    "title": "Sherlock Holmes: Kızıl Dosya",
+    "author": "Arthur Conan Doyle",
+    "genre": "Polisiye",
+    "year": 1887,
+    "score": 4.6
+  },
+  {
+    "id": 71,
+    "title": "Doğu Ekspresinde Cinayet",
+    "author": "Agatha Christie",
+    "genre": "Polisiye",
+    "year": 1934,
+    "score": 4.7
+  },
+  {
+    "id": 72,
+    "title": "On Küçük Zenci",
+    "author": "Agatha Christie",
+    "genre": "Polisiye",
+    "year": 1939,
+    "score": 4.8
+  },
+  {
+    "id": 73,
+    "title": "Olasılıksız",
+    "author": "Adam Fawer",
+    "genre": "Gerilim",
+    "year": 2005,
+    "score": 4.4
+  },
+  {
+    "id": 74,
+    "title": "Empati",
+    "author": "Adam Fawer",
+    "genre": "Gerilim",
+    "year": 2008,
+    "score": 4.2
+  },
+  {
+    "id": 75,
+    "title": "Hayvanlardan Tanrılara: Sapiens",
+    "author": "Yuval Noah Harari",
+    "genre": "Tarih/Bilim",
+    "year": 2011,
+    "score": 4.7
+  },
+  {
+    "id": 76,
+    "title": "Homo Deus",
+    "author": "Yuval Noah Harari",
+    "genre": "Felsefe/Bilim",
+    "year": 2015,
+    "score": 4.5
+  },
+  {
+    "id": 77,
+    "title": "Tüfek, Mikrop ve Çelik",
+    "author": "Jared Diamond",
+    "genre": "Tarih/Bilim",
+    "year": 1997,
+    "score": 4.6
+  },
+  {
+    "id": 78,
+    "title": "Kozmos",
+    "author": "Carl Sagan",
+    "genre": "Bilim",
+    "year": 1980,
+    "score": 4.9
+  },
+  {
+    "id": 79,
+    "title": "Sol Ayağım",
+    "author": "Christy Brown",
+    "genre": "Otobiyografi",
+    "year": 1954,
+    "score": 4.5
+  },
+  {
+    "id": 80,
+    "title": "Dorian Gray'in Portresi",
+    "author": "Oscar Wilde",
+    "genre": "Gotik Roman",
+    "year": 1890,
+    "score": 4.6
+  },
+  {
+    "id": 81,
+    "title": "Dracula",
+    "author": "Bram Stoker",
+    "genre": "Korku",
+    "year": 1897,
+    "score": 4.4
+  },
+  {
+    "id": 82,
+    "title": "Frankenstein",
+    "author": "Mary Shelley",
+    "genre": "Bilim Kurgu/Korku",
+    "year": 1818,
+    "score": 4.3
+  },
+  {
+    "id": 83,
+    "title": "Moby Dick",
+    "author": "Herman Melville",
+    "genre": "Macera",
+    "year": 1851,
+    "score": 4.1
+  },
+  {
+    "id": 84,
+    "title": "Robinson Crusoe",
+    "author": "Daniel Defoe",
+    "genre": "Macera",
+    "year": 1719,
+    "score": 4.3
+  },
+  {
+    "id": 85,
+    "title": "Gulliver'in Gezileri",
+    "author": "Jonathan Swift",
+    "genre": "Hiciv",
+    "year": 1726,
+    "score": 4.2
+  },
+  {
+    "id": 86,
+    "title": "Denizler Altında Yirmi Bin Fersah",
+    "author": "Jules Verne",
+    "genre": "Macera",
+    "year": 1870,
+    "score": 4.6
+  },
+  {
+    "id": 87,
+    "title": "Seksen Günde Devrialem",
+    "author": "Jules Verne",
+    "genre": "Macera",
+    "year": 1873,
+    "score": 4.5
+  },
+  {
+    "id": 88,
+    "title": "Siddhartha",
+    "author": "Hermann Hesse",
+    "genre": "Felsefi Roman",
+    "year": 1922,
+    "score": 4.6
+  },
+  {
+    "id": 89,
+    "title": "Bozkırkurdu",
+    "author": "Hermann Hesse",
+    "genre": "Roman",
+    "year": 1927,
+    "score": 4.4
+  },
+  {
+    "id": 90,
+    "title": "Satranç",
+    "author": "Stefan Zweig",
+    "genre": "Novella",
+    "year": 1941,
+    "score": 4.8
+  },
+  {
+    "id": 91,
+    "title": "Bilinmeyen Bir Kadının Mektubu",
+    "author": "Stefan Zweig",
+    "genre": "Novella",
+    "year": 1922,
+    "score": 4.6
+  },
+  {
+    "id": 92,
+    "title": "Prens",
+    "author": "Niccolò Machiavelli",
+    "genre": "Siyaset Felsefesi",
+    "year": 1532,
+    "score": 4.3
+  },
+  {
+    "id": 93,
+    "title": "Savaş Sanatı",
+    "author": "Sun Tzu",
+    "genre": "Strateji",
+    "year": -500,
+    "score": 4.7
+  },
+  {
+    "id": 94,
+    "title": "Devlet",
+    "author": "Platon",
+    "genre": "Felsefe",
+    "year": -375,
+    "score": 4.5
+  },
+  {
+    "id": 95,
+    "title": "Böyle Buyurdu Zerdüşt",
+    "author": "Friedrich Nietzsche",
+    "genre": "Felsefe",
+    "year": 1883,
+    "score": 4.4
+  },
+  {
+    "id": 96,
+    "title": "İlahi Komedya",
+    "author": "Dante Alighieri",
+    "genre": "Epik Şiir",
+    "year": 1320,
+    "score": 4.6
+  },
+  {
+    "id": 97,
+    "title": "Romeo ve Juliet",
+    "author": "William Shakespeare",
+    "genre": "Tiyatro",
+    "year": 1597,
+    "score": 4.7
+  },
+  {
+    "id": 98,
+    "title": "Hamlet",
+    "author": "William Shakespeare",
+    "genre": "Tiyatro",
+    "year": 1603,
+    "score": 4.8
+  },
+  {
+    "id": 99,
+    "title": "Koku",
+    "author": "Patrick Süskind",
+    "genre": "Gerilim",
+    "year": 1985,
+    "score": 4.5
+  },
+  {
+    "id": 100,
+    "title": "Gülün Adı",
+    "author": "Umberto Eco",
+    "genre": "Tarihi Roman",
+    "year": 1980,
+    "score": 4.6
   }
+
 ]
