@@ -8,6 +8,7 @@ typedef struct QueueNode {
     char userName[MAX_STR];
     char bookTitle[MAX_STR];
     char borrowDate[20]; // YYYY-MM-DD formatı için
+    char dueDate[20]; // son teslim tarihi
     struct QueueNode* next;
 } QueueNode;
 

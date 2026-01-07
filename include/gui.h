@@ -3,13 +3,11 @@
 
 #include "book.h"
 
-// Menüyü ve arama çubuğunu ekrana basar
+// Pencereyi başlatan ana fonksiyon
+void start_gui(Book *library, int count);
+
+// Bunlar daha sonra ihtiyaç duyacağın yardımcı fonksiyonlar olabilir
 void draw_interface();
-
-// Kullanıcının seçtiği filtreye göre listeyi günceller
 void apply_filter(Book* library, int count, int filter_type);
-
-// Arama sonuçlarını anlık olarak gösterir
-void display_search_results(Book* results, int count);
 
 #endif
