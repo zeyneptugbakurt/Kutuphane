@@ -11,6 +11,7 @@ typedef struct Book {
     char title[MAX_STR];
     char author[MAX_STR];
     char genre[MAX_STR];    // io.c 'genre' aradığı için ismini düzelttik
+    char subgenre[MAX_STR];
     int year;
     float score;
 } Book;

@@ -2,14 +2,14 @@
 CC = gcc
 TARGET = kutuphane_gui
 
-# Derleme Bayrakları (Include klasörleri)
+# Derleme Bayrakları
 CFLAGS = -Iinclude -I/opt/homebrew/include
 
-# Linkleme Bayrakları (Kütüphaneler ve Framework'ler)
+# Linkleme Bayrakları
 LDFLAGS = -L/opt/homebrew/lib -lraylib \
           -framework IOKit -framework Cocoa -framework OpenGL
 
-# Kaynak Dosyalar (Hepsini buraya ekledik)
+# Kaynak Dosyalar (GÖRSELDEKİ İSİMLERE GÖRE DÜZELTİLDİ)
 SOURCES = src/main.c \
           src/gui.c \
           src/io.c \
@@ -20,21 +20,19 @@ SOURCES = src/main.c \
           src/trie.c \
           src/avl.c \
           src/queue.c \
-          src/graph.c
+          src/graph.c \
+          src/performance.c \
+          src/unit_tests.c
 
 # --- Kurallar ---
 
-# Varsayılan hedef: Sadece 'make' yazınca çalışır
 all: $(TARGET)
 
-# Derleme işlemi
 $(TARGET): $(SOURCES)
 	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS) -o $(TARGET)
 
-# Hem derle hem çalıştır: 'make run' yazınca çalışır
 run: all
 	./$(TARGET)
 
-# Temizlik: 'make clean' yazınca oluşan dosyayı siler
 clean:
 	rm -f $(TARGET)

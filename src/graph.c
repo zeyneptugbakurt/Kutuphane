@@ -1,75 +1,105 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "../include/graph.h"
 
-Graph* createGraph() {
-    Graph* g = (Graph*)malloc(sizeof(Graph));
-    
-    // Bölüm İsimleri
-    strcpy(g->nodeNames[0], "Giris");
-    strcpy(g->nodeNames[1], "Roman");
-    strcpy(g->nodeNames[2], "Tarih");
-    strcpy(g->nodeNames[3], "Bilim");
-    strcpy(g->nodeNames[4], "Yazilim");
-    strcpy(g->nodeNames[5], "Sanat");
+static int adjMatrix[MAX_NODES][MAX_NODES];
 
-    // Mesafeler (Örn: Girişten Romana 4 metre, Girişten Tarihe 2 metre vb.)
-    // 0:Giris, 1:Roman, 2:Tarih, 3:Bilim, 4:Yazilim, 5:Sanat
-    int initialMatrix[MAX_NODES][MAX_NODES] = {
-        {0, 4, 2, 0, 0, 0},
-        {4, 0, 1, 5, 0, 0},
-        {2, 1, 0, 8, 10, 0},
-        {0, 5, 8, 0, 2, 6},
-        {0, 0, 10, 2, 0, 3},
-        {0, 0, 0, 6, 3, 0}
-    };
+// Tür İsimleri ve ID'lerini tutmak için
+static char* subGenreNames[100]; int subGenreIds[100]; int subGenreCount = 0;
+static char* mainGenreNames[10]; int mainGenreIds[10]; int mainGenreCount = 0;
 
-    for(int i=0; i<MAX_NODES; i++)
-        for(int j=0; j<MAX_NODES; j++)
-            g->weightMatrix[i][j] = (initialMatrix[i][j] == 0 && i != j) ? INF : initialMatrix[i][j];
-
-    return g;
+// Yardımcı: İsimden ID bul (Yoksa oluştur)
+int get_id_for_string(char* names[], int ids[], int* count, const char* target, int startID) {
+    for(int i=0; i<*count; i++) {
+        if(strcmp(names[i], target) == 0) return ids[i];
+    }
+    int newID = startID + (*count);
+    if (newID >= MAX_NODES) return 0;
+    names[*count] = strdup(target);
+    ids[*count] = newID;
+    (*count)++;
+    return newID;
 }
 
-void dijkstra(Graph* g, int start, int target) {
-    int dist[MAX_NODES], visited[MAX_NODES], parent[MAX_NODES];
+void init_graph(Book* library, int count) {
+    // Temizlik
+    for(int i=0; i<MAX_NODES; i++) for(int j=0; j<MAX_NODES; j++) adjMatrix[i][j] = 0;
+    subGenreCount = 0;
+    mainGenreCount = 0;
 
-    for (int i = 0; i < MAX_NODES; i++) {
-        dist[i] = INF;
-        visited[i] = 0;
-        parent[i] = -1;
+    for (int i = 0; i < count; i++) {
+        int bookID = library[i].id;
+        
+        // 1. ID'leri Al
+        int subID = get_id_for_string(subGenreNames, subGenreIds, &subGenreCount, library[i].subgenre, 501);
+        int mainID = get_id_for_string(mainGenreNames, mainGenreIds, &mainGenreCount, library[i].genre, 601);
+
+        // 2. Bağlantıları Kur
+        // Kitap <-> Alt Tür
+        if(bookID < MAX_NODES && subID > 0) {
+            adjMatrix[bookID][subID] = 1;
+            adjMatrix[subID][bookID] = 1;
+        }
+
+        // Alt Tür <-> Ana Tür
+        if(subID > 0 && mainID > 0) {
+            adjMatrix[subID][mainID] = 1;
+            adjMatrix[mainID][subID] = 1;
+        }
+
+        // Ana Tür <-> Merkez (0)
+        if(mainID > 0) {
+            adjMatrix[mainID][0] = 1;
+            adjMatrix[0][mainID] = 1;
+        }
     }
+    printf("[GRAF] Hiyerarsi kuruldu: Kitap > Alt Tur > Ana Tur > Merkez\n");
+}
 
-    dist[start] = 0;
-
-    for (int count = 0; count < MAX_NODES - 1; count++) {
-        int min = INF, u;
-        for (int v = 0; v < MAX_NODES; v++)
-            if (!visited[v] && dist[v] <= min) { min = dist[v]; u = v; }
-
-        visited[u] = 1;
-
-        for (int v = 0; v < MAX_NODES; v++)
-            if (!visited[v] && g->weightMatrix[u][v] != INF && dist[u] + g->weightMatrix[u][v] < dist[v]) {
-                dist[v] = dist[u] + g->weightMatrix[u][v];
-                parent[v] = u;
-            }
-    }
-
-    printf("\n[NAVIGASYON] %s -> %s arasi en kisa yol:\n", g->nodeNames[start], g->nodeNames[target]);
-    printf("Toplam Mesafe: %d metre\n", dist[target]);
-    printf("Rota: ");
+// BFS Algoritması (Adım adım yol bulur)
+int get_shortest_path_bfs(int startID, int targetID, Book* library, int count, int* pathBuffer) {
+    if(startID == targetID) return 0;
     
-    // Yolu tersten yazdırmak için basit bir recursive yapı simülasyonu
-    int path[MAX_NODES], count = 0;
-    int curr = target;
-    while(curr != -1) {
-        path[count++] = curr;
-        curr = parent[curr];
+    int queue[MAX_NODES];
+    int front = 0, rear = 0;
+    bool visited[MAX_NODES] = { false };
+    int parent[MAX_NODES]; 
+
+    for(int i=0; i<MAX_NODES; i++) parent[i] = -1;
+
+    visited[startID] = true;
+    queue[rear++] = startID;
+
+    bool found = false;
+
+    while(front < rear) {
+        int current = queue[front++];
+        if(current == targetID) {
+            found = true;
+            break;
+        }
+        for(int i=0; i<MAX_NODES; i++) {
+            if(adjMatrix[current][i] == 1 && !visited[i]) {
+                visited[i] = true;
+                parent[i] = current;
+                queue[rear++] = i;
+            }
+        }
     }
-    for(int i=count-1; i>=0; i--) {
-        printf("%s%s", g->nodeNames[path[i]], (i==0 ? "" : " -> "));
+
+    if(found) {
+        int tempPath[MAX_NODES];
+        int steps = 0;
+        int curr = targetID;
+        while(curr != -1) {
+            tempPath[steps++] = curr;
+            curr = parent[curr];
+            if(steps >= MAX_NODES) break;
+        }
+        for(int i=0; i<steps; i++) pathBuffer[i] = tempPath[steps - 1 - i];
+        return steps;
     }
-    printf("\n");
+    return 0;
 }
