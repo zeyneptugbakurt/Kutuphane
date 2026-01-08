@@ -4,26 +4,31 @@
 #include <ctype.h>
 #include "../include/trie.h"
 
+// Yeni bir Trie düğümü oluşturur ve bellek ayırır
 TrieNode* createTrieNode() {
     TrieNode* newNode = (TrieNode*)malloc(sizeof(TrieNode));
+    if (newNode == NULL) return NULL; // Hata yönetimi: Bellek kontrolü
+    
     newNode->isEndOfWord = 0;
-    newNode->ids = NULL; // Liste başlangıcı boş
+    newNode->ids = NULL; // ID listesi başlangıçta boş
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         newNode->children[i] = NULL;
     }
     return newNode;
 }
 
+// Karakteri uygun dizi indeksine (0-35) dönüştürür
 int charToIndex(char c) {
-    if (isdigit((unsigned char)c)) return (c - '0') + 26;
-    return tolower((unsigned char)c) - 'a';
+    if (isdigit((unsigned char)c)) return (c - '0') + 26; // Rakamlar 26-35 arası
+    return tolower((unsigned char)c) - 'a'; // Harfler 0-25 arası
 }
 
+// Türkçe karakterleri temizler ve küçük harfe dönüştürür
 void normalize_string(const char* src, char* dest) {
     int i = 0, j = 0;
     while (src[i] != '\0') {
         unsigned char c = (unsigned char)src[i];
-        if (c > 127) {
+        if (c > 127) { // UTF-8 çok baytlı karakter kontrolü
             unsigned char next = (unsigned char)src[i+1];
             if (c == 0xC3) {
                 if (next == 0xA7 || next == 0x87) { dest[j++] = 'c'; i += 2; continue; }
@@ -44,7 +49,7 @@ void normalize_string(const char* src, char* dest) {
     dest[j] = '\0';
 }
 
-// --- GÜNCELLENDİ: Listeye Ekleme Mantığı ---
+// Kelimeleri Trie ağacına ekler ve ID'leri bağlı listeye (linked list) bağlar
 void insert_trie(TrieNode* root, const char* title, int book_id) {
     char cleanTitle[MAX_STR];
     normalize_string(title, cleanTitle);
@@ -67,33 +72,43 @@ void insert_trie(TrieNode* root, const char* title, int book_id) {
             curr = curr->children[index];
         }
         
-        // Kelime bitti, ID'yi listeye ekle
         curr->isEndOfWord = 1;
         
-        // Yeni ID düğümü oluştur
+        // Yeni ID düğümü oluştur ve listeye ekle
         IdNode* newIdNode = (IdNode*)malloc(sizeof(IdNode));
-        newIdNode->id = book_id;
-        newIdNode->next = NULL;
-
-        // Listeye ekle (Listenin başına eklemek en hızlısıdır)
-        newIdNode->next = curr->ids;
-        curr->ids = newIdNode;
+        if (newIdNode != NULL) {
+            newIdNode->id = book_id;
+            newIdNode->next = curr->ids;
+            curr->ids = newIdNode;
+        }
         
         word = strtok(NULL, " "); 
     }
 }
 
-// Search fonksiyonları konsol testi içindi, GUI search.c'yi kullanıyor.
-// Ancak derleme hatası olmaması için burayı da uyumlu bırakıyoruz.
-void display_suggestions(TrieNode* curr, char* currentPrefix, int level, Book* bookList, int bookCount) {
-    // Bu fonksiyon sadece debug amaçlıdır
-}
-
-void search_prefix_trie(TrieNode* root, const char* prefix, Book* bookList, int bookCount) {
-    // Bu fonksiyon sadece debug amaçlıdır
-}
-
+// Unit Testlerin başarıyla geçmesini sağlayan arama fonksiyonu
 int search_trie(TrieNode* root, const char* title) {
-    // Basitleştirilmiş, sadece ilk bulduğunu döndürür
-    return -1; 
+    char cleanTitle[MAX_STR];
+    normalize_string(title, cleanTitle);
+
+    TrieNode* curr = root;
+    for (int i = 0; cleanTitle[i] != '\0'; i++) {
+        if (!isalnum((unsigned char)cleanTitle[i])) continue;
+        int index = charToIndex(cleanTitle[i]);
+        if (index < 0 || index >= ALPHABET_SIZE) return -1;
+
+        if (curr->children[index] == NULL) return -1;
+        curr = curr->children[index];
+    }
+
+    // Kelime bulunduysa bağlı listedeki ilk ID'yi döndür
+    if (curr != NULL && curr->isEndOfWord && curr->ids != NULL) {
+        return curr->ids->id;
+    }
+
+    return -1; // Bulunamadı
 }
+
+// Boş bırakılan fonksiyonlar derleme hatasını önlemek içindir
+void display_suggestions(TrieNode* curr, char* currentPrefix, int level, Book* bookList, int bookCount) {}
+void search_prefix_trie(TrieNode* root, const char* prefix, Book* bookList, int bookCount) {}
