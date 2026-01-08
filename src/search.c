@@ -51,6 +51,7 @@ static void init_trie(Book* library, int count) {
     for (int i = 0; i < count; i++) {
         insert_trie(trieRoot, library[i].title, library[i].id);
         insert_trie(trieRoot, library[i].author, library[i].id);
+        insert_trie(trieRoot, library[i].genre, library[i].id);
     }
     trieInitialized = 1;
 }
