@@ -204,7 +204,7 @@ void start_gui(Book *library, int count)
                 DrawTextEx(font, "Ödünç Al", (Vector2){875, yPos + 22}, 15, 1, WHITE);
 
                 if (!isBooksMenuOpen && !showFilterMenu && CheckCollisionPointRec(mouse, btnBorrow) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-                    enqueue_loan(loanQueue, "Zeynep", displayList[i].title);
+                    enqueue_loan(loanQueue, "Muhammet Sinan Başarslan", displayList[i].title);
                     push(&undoStack, displayList[i].title);
                     if (originalIndex != -1) borrowed[originalIndex] = true;
                 }
